@@ -1,7 +1,10 @@
+import { useState } from 'react'
+
 import { paths } from '@infrastructure'
 import { useNavigate } from '@tanstack/react-router'
 
 import {
+  Alert,
   Box,
   Button,
   Drawer,
@@ -14,8 +17,7 @@ import {
 } from '@mantine/core'
 import { useForm } from '@mantine/form'
 
-import type { Recipe, RecipeInput } from '@domain'
-import { useRecipes } from '@domain'
+import { ApiError, type Recipe, type RecipeInput, useRecipes } from '@domain'
 
 import drawerClasses from './recipe-drawer.module.css'
 import { RecipeDrawerHeader } from './recipe-drawer-header'
@@ -108,6 +110,7 @@ type RecipeFormDrawerProps =
 export function RecipeFormDrawer(props: RecipeFormDrawerProps) {
   const navigate = useNavigate()
   const { create, update } = useRecipes()
+  const [submitError, setSubmitError] = useState<string | null>(null)
 
   const form = useForm<RecipeFormValues>({
     initialValues:
@@ -126,7 +129,13 @@ export function RecipeFormDrawer(props: RecipeFormDrawerProps) {
     }
   }
 
+  const onError = (err: unknown) =>
+    setSubmitError(
+      err instanceof ApiError ? err.message : 'Could not save this recipe',
+    )
+
   const submit = form.onSubmit((values) => {
+    setSubmitError(null)
     if (props.mode === 'edit') {
       update.mutate(
         { id: props.recipe.id, input: toRecipeInput(values, props.recipe) },
@@ -136,12 +145,14 @@ export function RecipeFormDrawer(props: RecipeFormDrawerProps) {
               to: paths.recipeDetail,
               params: { id: props.recipe.id },
             }),
+          onError,
         },
       )
     } else {
       create.mutate(toRecipeInput(values), {
         onSuccess: (recipe) =>
           navigate({ to: paths.recipeDetail, params: { id: recipe.id } }),
+        onError,
       })
     }
   })
@@ -177,6 +188,12 @@ export function RecipeFormDrawer(props: RecipeFormDrawerProps) {
         <form onSubmit={submit} className={drawerClasses.form}>
           <Box className={drawerClasses.body}>
             <Stack gap="md">
+              {submitError && (
+                <Alert color="red" title="Couldn't save">
+                  {submitError}
+                </Alert>
+              )}
+
               <TextInput
                 label="Name"
                 required

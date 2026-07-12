@@ -4,6 +4,7 @@ import { paths } from '@infrastructure'
 import { useNavigate } from '@tanstack/react-router'
 
 import {
+  Alert,
   Button,
   Group,
   Menu,
@@ -55,7 +56,14 @@ export function RecipeList() {
     try {
       const xml = await file.text()
       const input = beerXmlToRecipeInput(xml)
-      create.mutate(input)
+      create.mutate(input, {
+        onError: (err) =>
+          setImportError(
+            err instanceof ApiError
+              ? err.message
+              : 'Could not import that recipe',
+          ),
+      })
     } catch (err) {
       setImportError(
         err instanceof ApiError
@@ -130,17 +138,27 @@ export function RecipeList() {
       </Group>
 
       {importError && (
-        <Text c="red" size="sm" mb="md">
+        <Alert color="red" title="Import failed" mb="md">
           {importError}
-        </Text>
+        </Alert>
       )}
 
-      {query.isLoading ? (
+      {query.isError ? (
+        <Alert color="red" title="Couldn't load recipes">
+          Something went wrong fetching your recipes. Try refreshing the page.
+        </Alert>
+      ) : query.isLoading ? (
         <CardGrid>
           {[0, 1, 2].map((i) => (
             <Skeleton key={i} height="11.25rem" radius="lg" />
           ))}
         </CardGrid>
+      ) : filtered.length === 0 ? (
+        <Text c="dimmed" ta="center" py="xl">
+          {recipes.length === 0
+            ? 'No recipes yet — create one to get started.'
+            : 'No recipes match your search.'}
+        </Text>
       ) : (
         <CardGrid>
           {filtered.map((r) => (

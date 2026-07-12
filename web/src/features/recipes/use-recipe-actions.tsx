@@ -4,7 +4,18 @@ import { useNavigate } from '@tanstack/react-router'
 import { Text } from '@mantine/core'
 import { modals } from '@mantine/modals'
 
-import { downloadBeerXml, type Recipe, useRecipes } from '@domain'
+import { ApiError, downloadBeerXml, type Recipe, useRecipes } from '@domain'
+
+function showActionError(title: string, err: unknown) {
+  modals.open({
+    title,
+    children: (
+      <Text size="sm" c="red">
+        {err instanceof ApiError ? err.message : 'Something went wrong.'}
+      </Text>
+    ),
+  })
+}
 
 /** Shared recipe actions (edit/brew day/clone/export/delete) used by both
  *  the kebab menu and the card's right-click context menu, so the mutation
@@ -29,6 +40,7 @@ export function useRecipeActions(recipe: Recipe, onDeleted?: () => void) {
       {
         onSuccess: (created) =>
           navigate({ to: paths.recipeDetail, params: { id: created.id } }),
+        onError: (err) => showActionError("Couldn't clone recipe", err),
       },
     )
   }
@@ -45,7 +57,11 @@ export function useRecipeActions(recipe: Recipe, onDeleted?: () => void) {
       ),
       labels: { confirm: 'Delete', cancel: 'Cancel' },
       confirmProps: { color: 'red' },
-      onConfirm: () => remove.mutate(recipe.id, { onSuccess: onDeleted }),
+      onConfirm: () =>
+        remove.mutate(recipe.id, {
+          onSuccess: onDeleted,
+          onError: (err) => showActionError("Couldn't delete recipe", err),
+        }),
     })
 
   return { edit, startBrewDay, clone, exportBeerXml, confirmDelete }

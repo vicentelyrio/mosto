@@ -311,7 +311,7 @@ export function RecipeDetailDrawer({
   editing: boolean
 }) {
   const navigate = useNavigate()
-  const { data: recipe, isLoading } = useRecipe(id)
+  const { data: recipe, isLoading, isError } = useRecipe(id)
   const close = () => navigate({ to: paths.recipes })
 
   if (editing) {
@@ -329,10 +329,24 @@ export function RecipeDetailDrawer({
       padding={0}
       classNames={{ body: drawerClasses.drawerBody }}
     >
-      {isLoading || !recipe ? (
+      {isLoading ? (
         <Center h="100%">
           <Loader />
         </Center>
+      ) : isError || !recipe ? (
+        <Box className={drawerClasses.wrapper}>
+          <RecipeDrawerHeader
+            name="Recipe not found"
+            subtitle="It may have been deleted"
+            srm={0}
+            onClose={close}
+          />
+          <Box className={drawerClasses.body}>
+            <Text c="dimmed" size="sm">
+              This recipe no longer exists, or the link is invalid.
+            </Text>
+          </Box>
+        </Box>
       ) : (
         <ViewMode recipe={recipe} />
       )}
