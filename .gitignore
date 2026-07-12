@@ -1,0 +1,14 @@
+/target
+/desktop/target
+/desktop/gen
+
+node_modules
+web/dist
+web/.tanstack
+web/src/routeTree.gen.ts
+
+*.db
+*.db-shm
+*.db-wal
+
+.env
