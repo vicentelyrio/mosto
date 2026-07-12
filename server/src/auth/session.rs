@@ -3,7 +3,7 @@ use rand::rngs::OsRng;
 use rand::RngCore;
 use sha2::{Digest, Sha256};
 
-pub const COOKIE_NAME: &str = "brewday_session";
+pub const COOKIE_NAME: &str = "mosto_session";
 pub const SHORT_TTL_HOURS: i64 = 12;
 
 pub fn generate_token() -> String {

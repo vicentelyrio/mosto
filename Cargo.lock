@@ -269,54 +269,6 @@ dependencies = [
 ]
 
 [[package]]
-name = "brewday-core"
-version = "0.1.0"
-dependencies = [
- "serde",
- "sqlx",
- "tokio",
- "tracing",
- "uuid",
-]
-
-[[package]]
-name = "brewday-desktop"
-version = "0.1.0"
-dependencies = [
- "brewday-core",
- "serde",
- "serde_json",
- "sqlx",
- "tauri",
- "tauri-build",
- "tokio",
-]
-
-[[package]]
-name = "brewday-server"
-version = "0.1.0"
-dependencies = [
- "argon2",
- "axum",
- "axum-extra",
- "brewday-core",
- "dotenvy",
- "hex",
- "rand 0.8.7",
- "rust-embed",
- "serde",
- "sha2 0.10.9",
- "sqlx",
- "tokio",
- "toml 1.1.2+spec-1.1.0",
- "tower",
- "tower-http 0.7.0",
- "tracing",
- "tracing-subscriber",
- "uuid",
-]
-
-[[package]]
 name = "brotli"
 version = "8.0.4"
 source = "registry+https://github.com/rust-lang/crates.io-index"
@@ -2163,6 +2115,54 @@ dependencies = [
  "libc",
  "wasi",
  "windows-sys 0.61.2",
+]
+
+[[package]]
+name = "mosto-core"
+version = "0.1.0"
+dependencies = [
+ "serde",
+ "sqlx",
+ "tokio",
+ "tracing",
+ "uuid",
+]
+
+[[package]]
+name = "mosto-desktop"
+version = "0.1.0"
+dependencies = [
+ "mosto-core",
+ "serde",
+ "serde_json",
+ "sqlx",
+ "tauri",
+ "tauri-build",
+ "tokio",
+]
+
+[[package]]
+name = "mosto-server"
+version = "0.1.0"
+dependencies = [
+ "argon2",
+ "axum",
+ "axum-extra",
+ "dotenvy",
+ "hex",
+ "mosto-core",
+ "rand 0.8.7",
+ "rust-embed",
+ "serde",
+ "sha2 0.10.9",
+ "sqlx",
+ "tokio",
+ "toml 1.1.2+spec-1.1.0",
+ "tower",
+ "tower-http 0.7.0",
+ "tracing",
+ "tracing-subscriber",
+ "uuid",
 ]
 
 [[package]]

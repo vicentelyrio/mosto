@@ -1,5 +1,5 @@
 [package]
-name = "brewday-core"
+name = "mosto-core"
 version.workspace = true
 edition.workspace = true
 

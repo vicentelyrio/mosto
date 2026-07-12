@@ -1,10 +1,10 @@
 listen = "127.0.0.1:4100"
-db_path = "brewday.db"
+db_path = "mosto.db"
 
 [auth]
 owner_username = "brewer"
 # The owner password hash is a secret and lives in the (gitignored) .env file
-# as BREWDAY_OWNER_PASSWORD_HASH — not here, since this file is committed.
+# as MOSTO_OWNER_PASSWORD_HASH — not here, since this file is committed.
 # Generate one with `cargo run -- hash-password`. See .env.example — the
 # value MUST be single-quoted there, or dotenvy will mangle the `$`s in it.
 

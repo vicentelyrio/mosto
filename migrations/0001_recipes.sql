@@ -24,12 +24,15 @@ CREATE INDEX idx_recipe_tags_recipe ON recipe_tags(recipe_id);
 
 -- `type`, `yield_pct`, `color_lovibond` mirror BeerXML's Fermentable fields
 -- (type/yield/color are required there) so a recipe can round-trip through
--- BeerXML without losing data.
+-- BeerXML without losing data. `type` has no CHECK constraint: real-world
+-- BeerXML files (from various other tools) don't reliably conform to the
+-- exact Grain/Sugar/Extract/Dry Extract/Adjunct set — rejecting an import
+-- over a minor label mismatch is worse than just storing it as-is.
 CREATE TABLE recipe_grains (
   id TEXT PRIMARY KEY,
   recipe_id TEXT NOT NULL REFERENCES recipes(id) ON DELETE CASCADE,
   name TEXT NOT NULL,
-  type TEXT NOT NULL DEFAULT 'Grain' CHECK (type IN ('Grain', 'Sugar', 'Extract', 'Dry Extract', 'Adjunct')),
+  type TEXT NOT NULL DEFAULT 'Grain',
   amount REAL NOT NULL,
   unit TEXT NOT NULL,
   pct REAL NOT NULL,
@@ -93,11 +96,14 @@ CREATE TABLE recipe_mash (
   tun_specific_heat REAL
 );
 
+-- `type` has no CHECK constraint, same reasoning as recipe_grains.type: this
+-- is populated from arbitrary imported BeerXML files, not exclusively our
+-- own app logic.
 CREATE TABLE recipe_mash_steps (
   id TEXT PRIMARY KEY,
   recipe_id TEXT NOT NULL REFERENCES recipes(id) ON DELETE CASCADE,
   name TEXT NOT NULL,
-  type TEXT NOT NULL CHECK (type IN ('Infusion', 'Temperature', 'Decoction')),
+  type TEXT NOT NULL,
   step_temp REAL NOT NULL,
   step_time REAL NOT NULL,
   infuse_amount REAL,
@@ -120,7 +126,10 @@ CREATE TABLE recipe_style_guide (
   category_number TEXT NOT NULL DEFAULT '',
   style_letter TEXT NOT NULL DEFAULT '',
   style_guide TEXT NOT NULL DEFAULT '',
-  type TEXT NOT NULL CHECK (type IN ('Lager', 'Ale', 'Mead', 'Wheat', 'Mixed', 'Cider')),
+  -- No CHECK constraint, same reasoning as recipe_grains.type: real BeerXML
+  -- exports don't reliably conform to the exact Lager/Ale/Mead/Wheat/Mixed/
+  -- Cider set (this is exactly what broke on a real import).
+  type TEXT NOT NULL,
   og_min REAL NOT NULL,
   og_max REAL NOT NULL,
   fg_min REAL NOT NULL,

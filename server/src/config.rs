@@ -23,13 +23,13 @@ pub struct AuthConfig {
 
 impl AuthConfig {
     pub fn resolved_owner_hash(&self) -> String {
-        std::env::var("BREWDAY_OWNER_PASSWORD_HASH")
+        std::env::var("MOSTO_OWNER_PASSWORD_HASH")
             .unwrap_or_else(|_| self.owner_password_hash.clone())
     }
 }
 
 fn default_db_path() -> PathBuf {
-    PathBuf::from("brewday.db")
+    PathBuf::from("mosto.db")
 }
 
 fn default_secure_cookies() -> bool {

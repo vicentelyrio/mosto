@@ -22,9 +22,9 @@ impl AppState {
             panic!("config is missing the [auth] section; the server won't serve anonymously")
         });
 
-        let pool = brewday_core::db::connect(&config.db_path).await;
+        let pool = mosto_core::db::connect(&config.db_path).await;
         crate::auth::store::seed_owner_if_empty(&pool, &auth).await;
-        brewday_core::recipes::seed::seed_if_empty(&pool).await;
+        mosto_core::recipes::seed::seed_if_empty(&pool).await;
 
         AppState {
             pool,

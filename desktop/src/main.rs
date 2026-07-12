@@ -17,10 +17,10 @@ fn main() {
                     .app_data_dir()
                     .expect("resolve app data dir");
                 std::fs::create_dir_all(&dir).expect("create app data dir");
-                let db_path = dir.join("brewday.db");
+                let db_path = dir.join("mosto.db");
 
-                let pool = brewday_core::db::connect(&db_path).await;
-                brewday_core::recipes::seed::seed_if_empty(&pool).await;
+                let pool = mosto_core::db::connect(&db_path).await;
+                mosto_core::recipes::seed::seed_if_empty(&pool).await;
 
                 handle.manage(AppState { pool });
             });

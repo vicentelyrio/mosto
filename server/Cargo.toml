@@ -1,15 +1,15 @@
 [package]
-name = "brewday-server"
+name = "mosto-server"
 version.workspace = true
 edition.workspace = true
-default-run = "brewday-server"
+default-run = "mosto-server"
 
 [[bin]]
-name = "brewday-server"
+name = "mosto-server"
 path = "src/main.rs"
 
 [dependencies]
-brewday-core = { path = "../core" }
+mosto-core = { path = "../core" }
 argon2 = "0.5.3"
 axum = "0.8.9"
 axum-extra = { version = "0.10.1", features = ["cookie"] }

@@ -1,14 +1,14 @@
 {
-  "productName": "BrewApp",
+  "productName": "Mosto",
   "version": "0.1.0",
-  "identifier": "com.vicentelyrio.brewapp",
+  "identifier": "com.vicentelyrio.mosto",
   "build": {
     "frontendDist": "../web/dist"
   },
   "app": {
     "windows": [
       {
-        "title": "BrewApp",
+        "title": "Mosto",
         "width": 1200,
         "height": 800
       }

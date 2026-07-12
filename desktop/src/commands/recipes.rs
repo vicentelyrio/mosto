@@ -1,10 +1,10 @@
 use tauri::State;
 
-use brewday_core::recipes::{store, Recipe, RecipeInput};
+use mosto_core::recipes::{store, Recipe, RecipeInput};
 
 use crate::state::AppState;
 
-// Thin translators around `brewday_core::recipes::store` — identical calls to
+// Thin translators around `mosto_core::recipes::store` — identical calls to
 // the ones `server/src/recipes/handlers.rs` makes, just returning
 // `Result<T, String>` (Tauri's error convention) instead of an HTTP response.
 

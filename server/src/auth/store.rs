@@ -1,4 +1,4 @@
-use brewday_core::util::now;
+use mosto_core::util::now;
 use sqlx::sqlite::SqliteRow;
 use sqlx::{Row, SqlitePool};
 use uuid::Uuid;
@@ -84,7 +84,7 @@ pub async fn seed_owner_if_empty(pool: &SqlitePool, cfg: &AuthConfig) {
     if hash.is_empty() {
         panic!(
             "no users exist and [auth].owner_password_hash is empty; \
-             generate one with `cargo run --bin brewday-server -- hash-password`"
+             generate one with `cargo run --bin mosto-server -- hash-password`"
         );
     }
 

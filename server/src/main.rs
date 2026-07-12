@@ -13,7 +13,7 @@ use state::AppState;
 
 #[tokio::main]
 async fn main() {
-    // In dev, `cargo run` (or `cargo run -p brewday-server`) can be invoked
+    // In dev, `cargo run` (or `cargo run -p mosto-server`) can be invoked
     // from the workspace root, not this crate's own directory — unlike a
     // deployed binary, which always sits next to its config.toml and .env.
     // So debug builds resolve both against this crate's manifest dir; release

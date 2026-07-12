@@ -1,7 +1,7 @@
 use axum::extract::{Path, State};
 use axum::http::StatusCode;
 use axum::response::Json;
-use brewday_core::recipes::{store, Recipe, RecipeInput};
+use mosto_core::recipes::{store, Recipe, RecipeInput};
 
 use crate::state::AppState;
 
