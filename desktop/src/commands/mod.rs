@@ -1,5 +1,6 @@
+pub mod equipment;
 pub mod inventory;
 pub mod recipes;
 
-// TODO: add equipment/brewday command modules once those resources follow
-// the recipes pattern in `core`.
+// TODO: add a brewday command module once that resource follows the
+// recipes pattern in `core`.

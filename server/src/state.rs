@@ -26,6 +26,7 @@ impl AppState {
         crate::auth::store::seed_owner_if_empty(&pool, &auth).await;
         mosto_core::recipes::seed::seed_if_empty(&pool).await;
         mosto_core::inventory::seed::seed_if_empty(&pool).await;
+        mosto_core::equipment::seed::seed_if_empty(&pool).await;
 
         AppState {
             pool,

@@ -1,5 +1,6 @@
 mod auth;
 mod config;
+mod equipment;
 mod inventory;
 mod recipes;
 mod spa;
@@ -45,6 +46,7 @@ async fn main() {
 
     let protected = recipes::routes()
         .merge(inventory::routes())
+        .merge(equipment::routes())
         .merge(auth::authed_routes())
         .route_layer(middleware::from_fn_with_state(
             state.clone(),
