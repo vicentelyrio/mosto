@@ -67,19 +67,18 @@ export function AppTemplate() {
   return (
     <AppShell
       navbar={{
-        width: collapsed ? 60 : 220,
+        width: collapsed ? '3.75rem' : '13.75rem',
         breakpoint: 'sm',
         collapsed: { mobile: true },
       }}
-      padding="lg"
     >
       <AppShell.Navbar className={classes.navbar}>
         <Group
           className={classes.brand}
           justify={justify}
-          gap={10}
-          px={collapsed ? 0 : 16}
-          py={20}
+          gap="xs"
+          px={collapsed ? 0 : 'md'}
+          py="lg"
           wrap="nowrap"
         >
           <BrewLogo size={32} />
@@ -93,7 +92,7 @@ export function AppTemplate() {
         <Divider color="dark.5" />
 
         <ScrollArea className={classes.navScroll}>
-          <Stack gap={2}>
+          <Stack gap="xs">
             {NAV.map((item) => {
               const active = pathname === item.to
               return (
@@ -105,7 +104,7 @@ export function AppTemplate() {
                   className={classes.navlink}
                   data-active={active || undefined}
                 >
-                  <Group gap={10} justify={justify} wrap="nowrap" w="100%">
+                  <Group gap="xs" justify={justify} wrap="nowrap" w="100%">
                     <item.icon size={18} weight="bold" />
                     {!collapsed && (
                       <Text
@@ -141,15 +140,15 @@ export function AppTemplate() {
         {showAccount && (
           <>
             <Divider color="dark.5" />
-            <Menu position="top-start" width={200} withinPortal>
+            <Menu position="top-start" width="12.5rem" withinPortal>
               <Menu.Target>
                 <UnstyledButton
                   className={classes.profileBtn}
                   title={collapsed ? me.data?.username : undefined}
                 >
-                  <Group gap={10} justify={justify} wrap="nowrap" w="100%">
+                  <Group gap="xs" justify={justify} wrap="nowrap" w="100%">
                     <Avatar
-                      size={32}
+                      size="sm"
                       radius="xl"
                       color="amber"
                       variant="light"
@@ -165,9 +164,6 @@ export function AppTemplate() {
                           truncate
                         >
                           {me.data?.username}
-                        </Text>
-                        <Text component="span" className={classes.profileRole}>
-                          Owner
                         </Text>
                       </Stack>
                     )}

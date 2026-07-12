@@ -28,7 +28,7 @@ import type {
   RecipeYeast,
   StyleGuide,
   WaterProfile,
-} from './entities'
+} from '../entities'
 
 /**
  * BeerXML <-> our Recipe. BeerXML is metric (kg, L, °C); we store imperial

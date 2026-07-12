@@ -1,0 +1,26 @@
+.card {
+  background-color: var(--mantine-color-dark-8);
+  border: 1px solid var(--mantine-color-dark-5);
+  border-radius: var(--mantine-radius-lg);
+  cursor: pointer;
+  overflow: hidden;
+  transition:
+    border-color 0.15s,
+    background-color 0.15s;
+}
+
+.card:hover {
+  background-color: var(--mantine-color-dark-7);
+  border-color: var(--mantine-color-amber-5);
+}
+
+.band {
+  height: 0.375rem;
+}
+
+.stat {
+  background-color: var(--mantine-color-dark-6);
+  border-radius: var(--mantine-radius-sm);
+  padding: var(--mantine-spacing-xs) 0;
+  text-align: center;
+}

@@ -1,32 +1,48 @@
 import { useRef, useState } from 'react'
 
 import { paths } from '@infrastructure'
-import { Link } from '@tanstack/react-router'
+import { useNavigate } from '@tanstack/react-router'
 
 import {
-  Badge,
-  Box,
   Button,
-  Card,
   Group,
-  SimpleGrid,
+  Menu,
+  Select,
   Skeleton,
-  Stack,
   Text,
-  Title,
+  TextInput,
 } from '@mantine/core'
 
-import { UploadSimpleIcon } from '@phosphor-icons/react'
+import { CaretDownIcon, UploadSimpleIcon } from '@phosphor-icons/react'
 
 import { ApiError, beerXmlToRecipeInput, useRecipes } from '@domain'
 
+import { CardGrid } from '@templates/card-grid'
+import { PageTemplate } from '@templates/page-template'
+
+import { RecipeCard } from './recipe-card'
 import classes from './recipe-list.module.css'
-import { srmToHex } from './srm'
+
+const SORTS = {
+  name: (a: { name: string }, b: { name: string }) =>
+    a.name.localeCompare(b.name),
+  recent: (
+    a: { last_brewed: string | null },
+    b: { last_brewed: string | null },
+  ) => (b.last_brewed ?? '').localeCompare(a.last_brewed ?? ''),
+  abv: (a: { abv: number }, b: { abv: number }) => b.abv - a.abv,
+  ibu: (a: { ibu: number }, b: { ibu: number }) => b.ibu - a.ibu,
+} as const
+
+type SortKey = keyof typeof SORTS
 
 export function RecipeList() {
+  const navigate = useNavigate()
   const { recipes, query, create } = useRecipes()
   const fileInput = useRef<HTMLInputElement>(null)
   const [importError, setImportError] = useState<string | null>(null)
+  const [search, setSearch] = useState('')
+  const [sort, setSort] = useState<SortKey>('name')
 
   const pickFile = () => fileInput.current?.click()
 
@@ -49,68 +65,95 @@ export function RecipeList() {
     }
   }
 
+  const filtered = recipes
+    .filter((r) => {
+      const q = search.toLowerCase()
+      return (
+        r.name.toLowerCase().includes(q) ||
+        r.style.toLowerCase().includes(q) ||
+        r.tags.some((t) => t.toLowerCase().includes(q))
+      )
+    })
+    .sort(SORTS[sort])
+
   return (
-    <Stack gap="lg">
-      <Group justify="space-between">
-        <Title order={2}>Recipes</Title>
-        <Box>
-          <input
-            ref={fileInput}
-            type="file"
-            accept=".xml,application/xml,text/xml"
-            className={classes.hiddenInput}
-            onChange={onFileSelected}
-          />
-          <Button
-            variant="light"
-            leftSection={<UploadSimpleIcon size={16} weight="bold" />}
-            onClick={pickFile}
-            loading={create.isPending}
-          >
-            Import BeerXML
-          </Button>
-        </Box>
+    <PageTemplate
+      title="Recipes"
+      subtitle={`${recipes.length} all-grain recipes`}
+      actions={
+        <Menu position="bottom-end">
+          <Menu.Target>
+            <Button rightSection={<CaretDownIcon size={14} weight="bold" />}>
+              + New Recipe
+            </Button>
+          </Menu.Target>
+          <Menu.Dropdown>
+            <Menu.Item onClick={() => navigate({ to: paths.newRecipe })}>
+              New Recipe
+            </Menu.Item>
+            <Menu.Item
+              leftSection={<UploadSimpleIcon size={16} />}
+              onClick={pickFile}
+            >
+              Import BeerXML
+            </Menu.Item>
+          </Menu.Dropdown>
+        </Menu>
+      }
+    >
+      <input
+        ref={fileInput}
+        type="file"
+        accept=".xml,application/xml,text/xml"
+        className={classes.hiddenInput}
+        onChange={onFileSelected}
+      />
+
+      <Group mb="lg" wrap="wrap">
+        <TextInput
+          className={classes.search}
+          placeholder="Search recipes…"
+          value={search}
+          onChange={(e) => setSearch(e.currentTarget.value)}
+        />
+        <Select
+          value={sort}
+          onChange={(value) => setSort((value as SortKey) ?? 'name')}
+          allowDeselect={false}
+          data={[
+            { value: 'name', label: 'Sort: Name' },
+            { value: 'recent', label: 'Sort: Recent' },
+            { value: 'abv', label: 'Sort: ABV' },
+            { value: 'ibu', label: 'Sort: IBU' },
+          ]}
+        />
       </Group>
 
       {importError && (
-        <Text c="red" size="sm">
+        <Text c="red" size="sm" mb="md">
           {importError}
         </Text>
       )}
 
       {query.isLoading ? (
-        <SimpleGrid cols={{ base: 1, sm: 2, lg: 3 }}>
+        <CardGrid>
           {[0, 1, 2].map((i) => (
-            <Skeleton key={i} height={140} radius="lg" />
+            <Skeleton key={i} height="11.25rem" radius="lg" />
           ))}
-        </SimpleGrid>
+        </CardGrid>
       ) : (
-        <SimpleGrid cols={{ base: 1, sm: 2, lg: 3 }}>
-          {recipes.map((r) => (
-            <Link
+        <CardGrid>
+          {filtered.map((r) => (
+            <RecipeCard
               key={r.id}
-              to={paths.recipeDetail}
-              params={{ id: r.id }}
-              className={classes.cardLink}
-            >
-              <Card withBorder className={classes.card}>
-                <Group justify="space-between" mb="xs">
-                  <Text fw={700}>{r.name}</Text>
-                  <Box className={classes.swatch} bg={srmToHex(r.srm)} />
-                </Group>
-                <Text size="sm" c="dimmed" mb="sm">
-                  {r.style} · {r.bjcp_code}
-                </Text>
-                <Group gap="xs">
-                  <Badge variant="light">{r.abv}% ABV</Badge>
-                  <Badge variant="light">{r.ibu} IBU</Badge>
-                  <Badge variant="light">OG {r.og.toFixed(3)}</Badge>
-                </Group>
-              </Card>
-            </Link>
+              recipe={r}
+              onClick={() =>
+                navigate({ to: paths.recipeDetail, params: { id: r.id } })
+              }
+            />
           ))}
-        </SimpleGrid>
+        </CardGrid>
       )}
-    </Stack>
+    </PageTemplate>
   )
 }

@@ -16,7 +16,15 @@
   "linter": {
     "enabled": true,
     "rules": {
-      "preset": "recommended"
+      "preset": "recommended",
+      "correctness": {
+        "noUnknownFunction": {
+          "level": "error",
+          "options": {
+            "ignore": ["rem", "em", "light-dark", "alpha", "lighten", "darken"]
+          }
+        }
+      }
     }
   },
   "javascript": {

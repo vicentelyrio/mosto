@@ -2,17 +2,7 @@
   display: none;
 }
 
-.cardLink {
-  text-decoration: none;
-}
-
-.card {
-  cursor: pointer;
-}
-
-.swatch {
-  width: 20px;
-  height: 20px;
-  border-radius: 6px;
-  border: 1px solid var(--mantine-color-dark-4);
+.search {
+  flex: 1;
+  min-width: 11.25rem;
 }

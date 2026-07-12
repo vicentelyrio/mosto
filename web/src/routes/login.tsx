@@ -41,7 +41,7 @@ function LoginPage() {
 
   return (
     <Center mih="100vh" bg="dark.8">
-      <Paper withBorder p="xl" w={340}>
+      <Paper withBorder p="xl" w="21.25rem">
         <form onSubmit={submit}>
           <Stack gap="md">
             <Text fw={800} size="lg">

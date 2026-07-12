@@ -1,6 +1,8 @@
 import { createFileRoute } from '@tanstack/react-router'
 
-import { Stack, Text, Title } from '@mantine/core'
+import { Text } from '@mantine/core'
+
+import { PageTemplate } from '@templates/page-template'
 
 export const Route = createFileRoute('/_app/equipment')({
   component: Placeholder,
@@ -8,9 +10,8 @@ export const Route = createFileRoute('/_app/equipment')({
 
 function Placeholder() {
   return (
-    <Stack gap="xs">
-      <Title order={2}>Equipment</Title>
+    <PageTemplate title="Equipment">
       <Text c="dimmed">Not wired up yet.</Text>
-    </Stack>
+    </PageTemplate>
   )
 }

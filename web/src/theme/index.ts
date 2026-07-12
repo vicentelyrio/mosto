@@ -108,7 +108,7 @@ export const theme = createTheme({
 
   components: {
     Button: {
-      defaultProps: { radius: 'xl' },
+      defaultProps: { radius: 'md' },
     },
     Paper: {
       defaultProps: { radius: 'lg' },

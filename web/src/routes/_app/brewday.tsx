@@ -1,6 +1,8 @@
 import { createFileRoute } from '@tanstack/react-router'
 
-import { Stack, Text, Title } from '@mantine/core'
+import { Text } from '@mantine/core'
+
+import { PageTemplate } from '@templates/page-template'
 
 export const Route = createFileRoute('/_app/brewday')({
   component: Placeholder,
@@ -8,12 +10,11 @@ export const Route = createFileRoute('/_app/brewday')({
 
 function Placeholder() {
   return (
-    <Stack gap="xs">
-      <Title order={2}>Brew Day</Title>
+    <PageTemplate title="Brew Day">
       <Text c="dimmed">
         Not wired up yet — steps, timers, gravity log, and yeast calc follow
         brew-brewday.jsx once BrewSession lands in `core`.
       </Text>
-    </Stack>
+    </PageTemplate>
   )
 }
