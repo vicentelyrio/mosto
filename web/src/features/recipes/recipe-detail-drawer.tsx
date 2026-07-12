@@ -18,8 +18,9 @@ import {
   Text,
 } from '@mantine/core'
 
-import { type Recipe, useRecipe, useRecipes } from '@domain'
+import { type Recipe, useRecipe } from '@domain'
 
+import { RecipeActionsMenu } from './recipe-actions-menu'
 import classes from './recipe-detail-drawer.module.css'
 import drawerClasses from './recipe-drawer.module.css'
 import { RecipeDrawerHeader } from './recipe-drawer-header'
@@ -203,7 +204,6 @@ function WaterTab({ recipe, factor }: { recipe: Recipe; factor: number }) {
 
 function ViewMode({ recipe }: { recipe: Recipe }) {
   const navigate = useNavigate()
-  const { create } = useRecipes()
   const [tab, setTab] = useState<string | null>('overview')
   const [scale, setScale] = useState(recipe.batch_size)
 
@@ -214,23 +214,6 @@ function ViewMode({ recipe }: { recipe: Recipe }) {
   const factor = scale / recipe.batch_size
 
   const close = () => navigate({ to: paths.recipes })
-  const openEdit = () =>
-    navigate({
-      to: paths.recipeDetail,
-      params: { id: recipe.id },
-      search: { edit: true },
-    })
-
-  const clone = () => {
-    const { id: _id, created_at: _createdAt, ...input } = recipe
-    create.mutate(
-      { ...input, name: `${recipe.name} (Copy)` },
-      {
-        onSuccess: (created) =>
-          navigate({ to: paths.recipeDetail, params: { id: created.id } }),
-      },
-    )
-  }
 
   return (
     <Box className={drawerClasses.wrapper}>
@@ -314,12 +297,7 @@ function ViewMode({ recipe }: { recipe: Recipe }) {
         <Button flex={1} onClick={() => navigate({ to: paths.brewday })}>
           Start Brew Day →
         </Button>
-        <Button variant="default" onClick={openEdit}>
-          Edit
-        </Button>
-        <Button variant="default" onClick={clone}>
-          Clone
-        </Button>
+        <RecipeActionsMenu recipe={recipe} onDeleted={close} />
       </Group>
     </Box>
   )

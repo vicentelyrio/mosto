@@ -11,6 +11,7 @@ import {
 import { createRouter, RouterProvider } from '@tanstack/react-router'
 
 import { MantineProvider } from '@mantine/core'
+import { ModalsProvider } from '@mantine/modals'
 
 import { ApiError, isTauri } from '@domain'
 
@@ -48,7 +49,9 @@ createRoot(document.getElementById('root')!).render(
   <StrictMode>
     <QueryClientProvider client={queryClient}>
       <MantineProvider defaultColorScheme="dark" theme={theme}>
-        <RouterProvider router={router} />
+        <ModalsProvider>
+          <RouterProvider router={router} />
+        </ModalsProvider>
       </MantineProvider>
     </QueryClientProvider>
   </StrictMode>,
