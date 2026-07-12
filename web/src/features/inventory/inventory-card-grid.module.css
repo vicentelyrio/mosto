@@ -1,0 +1,20 @@
+.grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(12.5rem, 1fr));
+  gap: var(--mantine-spacing-sm);
+}
+
+.card {
+  background-color: var(--mantine-color-dark-7);
+  border: 1px solid var(--mantine-color-dark-5);
+  border-radius: var(--mantine-radius-md);
+  padding: var(--mantine-spacing-md);
+}
+
+.card[data-status="low"] {
+  border-color: var(--mantine-color-orange-8);
+}
+
+.card[data-status="out"] {
+  border-color: var(--mantine-color-red-8);
+}
