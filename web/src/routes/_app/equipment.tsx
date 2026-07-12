@@ -1,17 +1,7 @@
 import { createFileRoute } from '@tanstack/react-router'
 
-import { Text } from '@mantine/core'
-
-import { PageTemplate } from '@templates/page-template'
+import { EquipmentList } from '@features/equipment'
 
 export const Route = createFileRoute('/_app/equipment')({
-  component: Placeholder,
+  component: EquipmentList,
 })
-
-function Placeholder() {
-  return (
-    <PageTemplate title="Equipment">
-      <Text c="dimmed">Not wired up yet.</Text>
-    </PageTemplate>
-  )
-}
