@@ -1,0 +1,13 @@
+listen = "127.0.0.1:4100"
+db_path = "brewday.db"
+
+[auth]
+owner_username = "brewer"
+# The owner password hash is a secret and lives in the (gitignored) .env file
+# as BREWDAY_OWNER_PASSWORD_HASH — not here, since this file is committed.
+# Generate one with `cargo run -- hash-password`. See .env.example — the
+# value MUST be single-quoted there, or dotenvy will mangle the `$`s in it.
+
+# Keep true in production (HTTPS). false only for local plain-http dev.
+secure_cookies = false
+session_ttl_days = 30
