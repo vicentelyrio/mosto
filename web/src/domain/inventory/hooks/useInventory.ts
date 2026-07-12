@@ -1,10 +1,11 @@
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query'
 
-import type { InventoryItemInput } from '../entities'
+import type { InventoryItem, InventoryItemInput } from '../entities'
 import {
   createInventoryItem,
   deleteInventoryItem,
   fetchInventory,
+  fetchInventoryItem,
   updateInventoryItem,
 } from '../service'
 
@@ -31,4 +32,12 @@ export function useInventory() {
   })
 
   return { items: query.data ?? [], query, create, update, remove }
+}
+
+export function useInventoryItem(id: string | undefined) {
+  return useQuery<InventoryItem>({
+    queryKey: ['inventory', id],
+    queryFn: () => fetchInventoryItem(id as string),
+    enabled: id !== undefined,
+  })
 }

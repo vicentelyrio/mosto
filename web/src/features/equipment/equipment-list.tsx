@@ -1,5 +1,8 @@
 import { useState } from 'react'
 
+import { paths } from '@infrastructure'
+import { useNavigate } from '@tanstack/react-router'
+
 import { Alert, Button, Skeleton, Tabs, Text } from '@mantine/core'
 
 import { PlusIcon } from '@phosphor-icons/react'
@@ -10,21 +13,21 @@ import { CardGrid } from '@templates/card-grid'
 import { PageTemplate } from '@templates/page-template'
 
 import { EquipmentCard } from './equipment-card'
-import { EquipmentFormDrawer } from './equipment-form'
 import { CONDITION_LABEL } from './equipment-meta'
 
 const CONDITIONS: Condition[] = ['good', 'fair', 'poor']
 
 export function EquipmentList() {
+  const navigate = useNavigate()
   const { equipment, query } = useEquipment()
   const [filter, setFilter] = useState('all')
-  const [modal, setModal] = useState<
-    { mode: 'create' } | { mode: 'edit'; item: Equipment } | null
-  >(null)
 
   const types = ['all', ...new Set(equipment.map((e) => e.type))]
   const filtered =
     filter === 'all' ? equipment : equipment.filter((e) => e.type === filter)
+
+  const editItem = (item: Equipment) =>
+    navigate({ to: paths.equipmentDetail, params: { id: item.id } })
 
   return (
     <PageTemplate
@@ -40,7 +43,7 @@ export function EquipmentList() {
       actions={
         <Button
           leftSection={<PlusIcon size={16} weight="bold" />}
-          onClick={() => setModal({ mode: 'create' })}
+          onClick={() => navigate({ to: paths.newEquipment })}
         >
           Add Equipment
         </Button>
@@ -75,24 +78,9 @@ export function EquipmentList() {
       ) : (
         <CardGrid>
           {filtered.map((item) => (
-            <EquipmentCard
-              key={item.id}
-              item={item}
-              onEdit={(item) => setModal({ mode: 'edit', item })}
-            />
+            <EquipmentCard key={item.id} item={item} onEdit={editItem} />
           ))}
         </CardGrid>
-      )}
-
-      {modal?.mode === 'create' && (
-        <EquipmentFormDrawer mode="create" onClose={() => setModal(null)} />
-      )}
-      {modal?.mode === 'edit' && (
-        <EquipmentFormDrawer
-          mode="edit"
-          item={modal.item}
-          onClose={() => setModal(null)}
-        />
       )}
     </PageTemplate>
   )

@@ -5,7 +5,11 @@ export const paths = {
   recipeDetail: '/recipes/$id',
   brewday: '/brewday',
   inventory: '/inventory',
+  newInventoryItem: '/inventory/new',
+  inventoryItemDetail: '/inventory/$id',
   equipment: '/equipment',
+  newEquipment: '/equipment/new',
+  equipmentDetail: '/equipment/$id',
   conversions: '/conversions',
   login: '/login',
 } as const

@@ -1,9 +1,10 @@
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query'
 
-import type { EquipmentInput } from '../entities'
+import type { Equipment, EquipmentInput } from '../entities'
 import {
   createEquipment,
   deleteEquipment,
+  fetchEquipment,
   fetchEquipmentList,
   updateEquipment,
 } from '../service'
@@ -34,4 +35,12 @@ export function useEquipment() {
   })
 
   return { equipment: query.data ?? [], query, create, update, remove }
+}
+
+export function useEquipmentItem(id: string | undefined) {
+  return useQuery<Equipment>({
+    queryKey: ['equipment', id],
+    queryFn: () => fetchEquipment(id as string),
+    enabled: id !== undefined,
+  })
 }

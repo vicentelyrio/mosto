@@ -1,5 +1,8 @@
 import { useState } from 'react'
 
+import { paths } from '@infrastructure'
+import { useNavigate } from '@tanstack/react-router'
+
 import {
   Alert,
   Box,
@@ -29,7 +32,6 @@ import {
 import { PageTemplate } from '@templates/page-template'
 
 import { InventoryCardGrid } from './inventory-card-grid'
-import { InventoryItemFormDrawer } from './inventory-item-form'
 import classes from './inventory-list.module.css'
 import { CATEGORIES, isLowOrOut } from './inventory-meta'
 import { InventoryTable } from './inventory-table'
@@ -37,13 +39,11 @@ import { InventoryTable } from './inventory-table'
 type View = 'table' | 'card'
 
 export function InventoryList() {
+  const navigate = useNavigate()
   const { items, query } = useInventory()
   const [category, setCategory] = useState<InventoryCategory>('grain')
   const [view, setView] = useState<View>('table')
   const [search, setSearch] = useState('')
-  const [modal, setModal] = useState<
-    { mode: 'create' } | { mode: 'edit'; item: InventoryItem } | null
-  >(null)
 
   const lowCount = items.filter(isLowOrOut).length
 
@@ -51,6 +51,9 @@ export function InventoryList() {
   const filtered = categoryItems.filter((i) =>
     i.name.toLowerCase().includes(search.toLowerCase()),
   )
+
+  const editItem = (item: InventoryItem) =>
+    navigate({ to: paths.inventoryItemDetail, params: { id: item.id } })
 
   return (
     <PageTemplate
@@ -63,7 +66,9 @@ export function InventoryList() {
       actions={
         <Button
           leftSection={<PlusIcon size={16} weight="bold" />}
-          onClick={() => setModal({ mode: 'create' })}
+          onClick={() =>
+            navigate({ to: paths.newInventoryItem, search: { category } })
+          }
         >
           Add Item
         </Button>
@@ -166,28 +171,13 @@ export function InventoryList() {
         <InventoryTable
           items={filtered}
           category={category}
-          onEdit={(item) => setModal({ mode: 'edit', item })}
+          onEdit={editItem}
         />
       ) : (
         <InventoryCardGrid
           items={filtered}
           category={category}
-          onEdit={(item) => setModal({ mode: 'edit', item })}
-        />
-      )}
-
-      {modal?.mode === 'create' && (
-        <InventoryItemFormDrawer
-          mode="create"
-          category={category}
-          onClose={() => setModal(null)}
-        />
-      )}
-      {modal?.mode === 'edit' && (
-        <InventoryItemFormDrawer
-          mode="edit"
-          item={modal.item}
-          onClose={() => setModal(null)}
+          onEdit={editItem}
         />
       )}
     </PageTemplate>
