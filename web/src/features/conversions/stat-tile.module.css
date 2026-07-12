@@ -1,0 +1,7 @@
+.tile {
+  background-color: var(--mantine-color-amber-9);
+  border: 1px solid var(--mantine-color-amber-7);
+  border-radius: var(--mantine-radius-md);
+  padding: var(--mantine-spacing-sm);
+  text-align: center;
+}

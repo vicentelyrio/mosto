@@ -1,0 +1,20 @@
+.swatch {
+  width: 3.5rem;
+  height: 3.5rem;
+  border-radius: var(--mantine-radius-md);
+  border: 2px solid var(--mantine-color-dark-5);
+  flex-shrink: 0;
+}
+
+.refSwatch {
+  width: 1.75rem;
+  height: 1.75rem;
+  border-radius: var(--mantine-radius-sm);
+  border: 2px solid transparent;
+  flex-shrink: 0;
+  cursor: pointer;
+}
+
+.refSwatch[data-active] {
+  border-color: white;
+}
