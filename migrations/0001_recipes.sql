@@ -107,3 +107,34 @@ CREATE TABLE recipe_mash_steps (
   sort_order INTEGER NOT NULL DEFAULT 0
 );
 CREATE INDEX idx_recipe_mash_steps_recipe ON recipe_mash_steps(recipe_id);
+
+-- Mirrors BeerXML's full Style record (guideline ranges, category, etc).
+-- Optional and separate from recipes.style/bjcp_code, which stay the
+-- lightweight always-present name + code used for list badges and recipes
+-- with no attached guideline data. Populated automatically on BeerXML import;
+-- preferred over the lightweight fields on export when present.
+CREATE TABLE recipe_style_guide (
+  recipe_id TEXT PRIMARY KEY REFERENCES recipes(id) ON DELETE CASCADE,
+  name TEXT NOT NULL,
+  category TEXT NOT NULL DEFAULT '',
+  category_number TEXT NOT NULL DEFAULT '',
+  style_letter TEXT NOT NULL DEFAULT '',
+  style_guide TEXT NOT NULL DEFAULT '',
+  type TEXT NOT NULL CHECK (type IN ('Lager', 'Ale', 'Mead', 'Wheat', 'Mixed', 'Cider')),
+  og_min REAL NOT NULL,
+  og_max REAL NOT NULL,
+  fg_min REAL NOT NULL,
+  fg_max REAL NOT NULL,
+  ibu_min REAL NOT NULL,
+  ibu_max REAL NOT NULL,
+  color_min REAL NOT NULL,
+  color_max REAL NOT NULL,
+  carb_min REAL,
+  carb_max REAL,
+  abv_min REAL,
+  abv_max REAL,
+  notes TEXT NOT NULL DEFAULT '',
+  profile TEXT NOT NULL DEFAULT '',
+  ingredients TEXT NOT NULL DEFAULT '',
+  examples TEXT NOT NULL DEFAULT ''
+);

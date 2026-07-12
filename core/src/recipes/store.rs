@@ -3,7 +3,8 @@ use sqlx::{Row, Sqlite, SqlitePool, Transaction};
 use uuid::Uuid;
 
 use super::model::{
-    Mash, MashStep, Recipe, RecipeGrain, RecipeHop, RecipeInput, RecipeYeast, WaterProfile,
+    Mash, MashStep, Recipe, RecipeGrain, RecipeHop, RecipeInput, RecipeYeast, StyleGuide,
+    WaterProfile,
 };
 use crate::util::now;
 
@@ -30,6 +31,7 @@ fn row_to_recipe(row: &SqliteRow) -> Recipe {
         yeasts: Vec::new(),
         water: None,
         mash: None,
+        style_guide: None,
     }
 }
 
@@ -151,6 +153,40 @@ async fn hydrate(pool: &SqlitePool, mut recipe: Recipe) -> Result<Recipe, sqlx::
         });
     }
 
+    recipe.style_guide = sqlx::query(
+        "SELECT name, category, category_number, style_letter, style_guide, type, \
+         og_min, og_max, fg_min, fg_max, ibu_min, ibu_max, color_min, color_max, \
+         carb_min, carb_max, abv_min, abv_max, notes, profile, ingredients, examples \
+         FROM recipe_style_guide WHERE recipe_id = ?",
+    )
+    .bind(&recipe.id)
+    .fetch_optional(pool)
+    .await?
+    .map(|r| StyleGuide {
+        name: r.get("name"),
+        category: r.get("category"),
+        category_number: r.get("category_number"),
+        style_letter: r.get("style_letter"),
+        style_guide: r.get("style_guide"),
+        r#type: r.get("type"),
+        og_min: r.get("og_min"),
+        og_max: r.get("og_max"),
+        fg_min: r.get("fg_min"),
+        fg_max: r.get("fg_max"),
+        ibu_min: r.get("ibu_min"),
+        ibu_max: r.get("ibu_max"),
+        color_min: r.get("color_min"),
+        color_max: r.get("color_max"),
+        carb_min: r.get("carb_min"),
+        carb_max: r.get("carb_max"),
+        abv_min: r.get("abv_min"),
+        abv_max: r.get("abv_max"),
+        notes: r.get("notes"),
+        profile: r.get("profile"),
+        ingredients: r.get("ingredients"),
+        examples: r.get("examples"),
+    });
+
     Ok(recipe)
 }
 
@@ -210,6 +246,10 @@ async fn write_children(
         .execute(&mut **tx)
         .await?;
     sqlx::query("DELETE FROM recipe_mash WHERE recipe_id = ?")
+        .bind(recipe_id)
+        .execute(&mut **tx)
+        .await?;
+    sqlx::query("DELETE FROM recipe_style_guide WHERE recipe_id = ?")
         .bind(recipe_id)
         .execute(&mut **tx)
         .await?;
@@ -323,6 +363,39 @@ async fn write_children(
             .execute(&mut **tx)
             .await?;
         }
+    }
+    if let Some(sg) = &input.style_guide {
+        sqlx::query(
+            "INSERT INTO recipe_style_guide (recipe_id, name, category, category_number, style_letter, style_guide, type, \
+             og_min, og_max, fg_min, fg_max, ibu_min, ibu_max, color_min, color_max, \
+             carb_min, carb_max, abv_min, abv_max, notes, profile, ingredients, examples) \
+             VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)",
+        )
+        .bind(recipe_id)
+        .bind(&sg.name)
+        .bind(&sg.category)
+        .bind(&sg.category_number)
+        .bind(&sg.style_letter)
+        .bind(&sg.style_guide)
+        .bind(&sg.r#type)
+        .bind(sg.og_min)
+        .bind(sg.og_max)
+        .bind(sg.fg_min)
+        .bind(sg.fg_max)
+        .bind(sg.ibu_min)
+        .bind(sg.ibu_max)
+        .bind(sg.color_min)
+        .bind(sg.color_max)
+        .bind(sg.carb_min)
+        .bind(sg.carb_max)
+        .bind(sg.abv_min)
+        .bind(sg.abv_max)
+        .bind(&sg.notes)
+        .bind(&sg.profile)
+        .bind(&sg.ingredients)
+        .bind(&sg.examples)
+        .execute(&mut **tx)
+        .await?;
     }
     Ok(())
 }

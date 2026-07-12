@@ -121,6 +121,7 @@ fn sample_recipes() -> Vec<RecipeInput> {
             yeasts: vec![yeast("Wyeast 1056 American Ale", 75.0, "60-72\u{b0}F", "liquid")],
             water: Some(water(7.5, 5.4, 75.0, 5.0, 15.0, 150.0, 50.0, 0.0)),
             mash: Some(single_infusion_mash(152.0, 60.0)),
+            style_guide: None,
         },
         RecipeInput {
             name: "Oatmeal Stout".into(),
@@ -150,6 +151,7 @@ fn sample_recipes() -> Vec<RecipeInput> {
             yeasts: vec![yeast("Wyeast 1084 Irish Ale", 72.0, "62-72\u{b0}F", "liquid")],
             water: Some(water(7.0, 5.3, 100.0, 10.0, 20.0, 50.0, 100.0, 100.0)),
             mash: Some(single_infusion_mash(154.0, 60.0)),
+            style_guide: None,
         },
         RecipeInput {
             name: "Hefeweizen".into(),
@@ -174,6 +176,7 @@ fn sample_recipes() -> Vec<RecipeInput> {
             yeasts: vec![yeast("Wyeast 3068 Weihenstephan", 74.0, "64-70\u{b0}F", "liquid")],
             water: Some(water(6.5, 5.4, 50.0, 5.0, 10.0, 30.0, 30.0, 50.0)),
             mash: Some(single_infusion_mash(150.0, 45.0)),
+            style_guide: None,
         },
         RecipeInput {
             name: "Belgian Tripel".into(),
@@ -201,6 +204,7 @@ fn sample_recipes() -> Vec<RecipeInput> {
             yeasts: vec![yeast("Wyeast 3787 Trappist High Gravity", 78.0, "65-78\u{b0}F", "liquid")],
             water: Some(water(8.0, 5.2, 60.0, 5.0, 10.0, 40.0, 40.0, 30.0)),
             mash: Some(single_infusion_mash(148.0, 75.0)),
+            style_guide: None,
         },
     ]
 }

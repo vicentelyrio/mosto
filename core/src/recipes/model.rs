@@ -23,6 +23,7 @@ pub struct Recipe {
     pub yeasts: Vec<RecipeYeast>,
     pub water: Option<WaterProfile>,
     pub mash: Option<Mash>,
+    pub style_guide: Option<StyleGuide>,
 }
 
 #[derive(Debug, Clone, Serialize, Deserialize)]
@@ -100,6 +101,37 @@ pub struct Mash {
     pub steps: Vec<MashStep>,
 }
 
+/// Full BeerXML Style record: guideline ranges + category info. Optional and
+/// separate from `Recipe::style`/`bjcp_code`, which stay the lightweight
+/// name + code every recipe has. Populated automatically on BeerXML import;
+/// preferred over the lightweight fields on export when present.
+#[derive(Debug, Clone, Serialize, Deserialize)]
+pub struct StyleGuide {
+    pub name: String,
+    pub category: String,
+    pub category_number: String,
+    pub style_letter: String,
+    pub style_guide: String,
+    /// BeerXML type: Lager | Ale | Mead | Wheat | Mixed | Cider.
+    pub r#type: String,
+    pub og_min: f64,
+    pub og_max: f64,
+    pub fg_min: f64,
+    pub fg_max: f64,
+    pub ibu_min: f64,
+    pub ibu_max: f64,
+    pub color_min: f64,
+    pub color_max: f64,
+    pub carb_min: Option<f64>,
+    pub carb_max: Option<f64>,
+    pub abv_min: Option<f64>,
+    pub abv_max: Option<f64>,
+    pub notes: String,
+    pub profile: String,
+    pub ingredients: String,
+    pub examples: String,
+}
+
 /// Create/update payload — same shape as `Recipe` minus the server-assigned
 /// `id` and `created_at`.
 #[derive(Debug, Clone, Deserialize)]
@@ -123,4 +155,5 @@ pub struct RecipeInput {
     pub yeasts: Vec<RecipeYeast>,
     pub water: Option<WaterProfile>,
     pub mash: Option<Mash>,
+    pub style_guide: Option<StyleGuide>,
 }
