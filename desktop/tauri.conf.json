@@ -1,0 +1,20 @@
+{
+  "productName": "BrewApp",
+  "version": "0.1.0",
+  "identifier": "com.vicentelyrio.brewapp",
+  "build": {
+    "frontendDist": "../web/dist"
+  },
+  "app": {
+    "windows": [
+      {
+        "title": "BrewApp",
+        "width": 1200,
+        "height": 800
+      }
+    ],
+    "security": {
+      "csp": null
+    }
+  }
+}
