@@ -81,7 +81,8 @@
 
 .profileBtn {
   width: calc(100% - var(--mantine-spacing-xs) * 2);
-  margin: var(--mantine-spacing-xs) var(--mantine-spacing-xs) var(--mantine-spacing-sm);
+  margin: var(--mantine-spacing-xs) var(--mantine-spacing-xs)
+    var(--mantine-spacing-sm);
   padding: var(--mantine-spacing-xs);
   border-radius: var(--mantine-radius-md);
   transition: background-color 0.15s;

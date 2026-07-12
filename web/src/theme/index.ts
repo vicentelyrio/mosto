@@ -1,4 +1,12 @@
-import { createTheme, type MantineColorsTuple, rem } from '@mantine/core'
+import {
+  createTheme,
+  defaultVariantColorsResolver,
+  type MantineColorsTuple,
+  rem,
+  type VariantColorsResolver,
+} from '@mantine/core'
+
+import { ON_ACCENT } from './colors'
 
 /* ------------------------------------------------------------------ */
 /* Color tuples (index 0 = lightest, 9 = darkest)                     */
@@ -73,9 +81,21 @@ const blue: MantineColorsTuple = [
   '#152438',
 ]
 
+// Amber is bright enough that white text (Mantine's default filled-variant
+// contrast) reads poorly against it — use the same dark accent as the
+// BrewLogo mark instead. Other colors keep Mantine's default resolution.
+const variantColorResolver: VariantColorsResolver = (input) => {
+  const resolved = defaultVariantColorsResolver(input)
+  if (input.color === 'amber' && input.variant === 'filled') {
+    return { ...resolved, color: ON_ACCENT }
+  }
+  return resolved
+}
+
 export const theme = createTheme({
   primaryColor: 'amber',
   primaryShade: { light: 5, dark: 5 },
+  variantColorResolver,
 
   colors: { amber, dark, green, red, blue },
 
@@ -97,7 +117,7 @@ export const theme = createTheme({
     },
   },
 
-  defaultRadius: 'md',
+  defaultRadius: 'sm',
   radius: {
     xs: rem(6),
     sm: rem(8),
