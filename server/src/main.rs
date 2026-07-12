@@ -1,5 +1,6 @@
 mod auth;
 mod config;
+mod inventory;
 mod recipes;
 mod spa;
 mod state;
@@ -42,9 +43,13 @@ async fn main() {
     let listen = config.listen.clone();
     let state = AppState::new(config).await;
 
-    let protected = recipes::routes().merge(auth::authed_routes()).route_layer(
-        middleware::from_fn_with_state(state.clone(), auth::require_auth),
-    );
+    let protected = recipes::routes()
+        .merge(inventory::routes())
+        .merge(auth::authed_routes())
+        .route_layer(middleware::from_fn_with_state(
+            state.clone(),
+            auth::require_auth,
+        ));
 
     let app = auth::public_routes()
         .merge(protected)

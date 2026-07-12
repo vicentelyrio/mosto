@@ -21,6 +21,7 @@ fn main() {
 
                 let pool = mosto_core::db::connect(&db_path).await;
                 mosto_core::recipes::seed::seed_if_empty(&pool).await;
+                mosto_core::inventory::seed::seed_if_empty(&pool).await;
 
                 handle.manage(AppState { pool });
             });
@@ -32,6 +33,11 @@ fn main() {
             commands::recipes::recipes_create,
             commands::recipes::recipes_update,
             commands::recipes::recipes_delete,
+            commands::inventory::inventory_list,
+            commands::inventory::inventory_get,
+            commands::inventory::inventory_create,
+            commands::inventory::inventory_update,
+            commands::inventory::inventory_delete,
         ])
         .run(tauri::generate_context!())
         .expect("error while running tauri application");

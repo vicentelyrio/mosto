@@ -25,6 +25,7 @@ impl AppState {
         let pool = mosto_core::db::connect(&config.db_path).await;
         crate::auth::store::seed_owner_if_empty(&pool, &auth).await;
         mosto_core::recipes::seed::seed_if_empty(&pool).await;
+        mosto_core::inventory::seed::seed_if_empty(&pool).await;
 
         AppState {
             pool,
