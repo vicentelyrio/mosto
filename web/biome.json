@@ -1,0 +1,76 @@
+{
+  "$schema": "https://biomejs.dev/schemas/2.5.3/schema.json",
+  "vcs": {
+    "enabled": true,
+    "clientKind": "git",
+    "useIgnoreFile": true
+  },
+  "files": {
+    "ignoreUnknown": false
+  },
+  "formatter": {
+    "enabled": true,
+    "indentStyle": "space",
+    "indentWidth": 2
+  },
+  "linter": {
+    "enabled": true,
+    "rules": {
+      "preset": "recommended"
+    }
+  },
+  "javascript": {
+    "formatter": {
+      "quoteStyle": "single",
+      "semicolons": "asNeeded"
+    }
+  },
+  "assist": {
+    "enabled": true,
+    "actions": {
+      "source": {
+        "organizeImports": {
+          "level": "on",
+          "options": {
+            "groups": [
+              ["react", "react/**"],
+              ":BLANK_LINE:",
+              ["react-dom", "react-dom/**"],
+              ":BLANK_LINE:",
+              [
+                ":PACKAGE:",
+                "!@mantine/**",
+                "!@phosphor-icons/**",
+                "!@domain",
+                "!@domain/**",
+                "!@features",
+                "!@features/**",
+                "!@templates",
+                "!@templates/**",
+                "!@theme",
+                "!@theme/**"
+              ],
+              ":BLANK_LINE:",
+              ["@mantine/**"],
+              ":BLANK_LINE:",
+              ["@phosphor-icons/**"],
+              ":BLANK_LINE:",
+              ["@domain", "@domain/**"],
+              ":BLANK_LINE:",
+              [
+                "@features",
+                "@features/**",
+                "@templates",
+                "@templates/**",
+                "@theme",
+                "@theme/**"
+              ],
+              ":BLANK_LINE:",
+              [":PATH:"]
+            ]
+          }
+        }
+      }
+    }
+  }
+}

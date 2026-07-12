@@ -1,0 +1,35 @@
+import { tanstackRouter } from '@tanstack/router-plugin/vite'
+import react from '@vitejs/plugin-react'
+import { defineConfig } from 'vite'
+
+import { fileURLToPath } from 'node:url'
+
+const src = (p: string) => fileURLToPath(new URL(`src/${p}`, import.meta.url))
+
+export default defineConfig({
+  plugins: [
+    tanstackRouter({
+      target: 'react',
+      autoCodeSplitting: true,
+    }),
+    react(),
+  ],
+  resolve: {
+    alias: {
+      '@': src(''),
+      '@domain': src('domain'),
+      '@features': src('features'),
+      '@templates': src('templates'),
+      '@theme': src('theme'),
+    },
+  },
+  server: {
+    // Forward API calls to the Rust backend in dev. The frontend always talks
+    // to a same-origin "/api" — no CORS — which mirrors production, where the
+    // SPA is embedded in the server binary (or, in the desktop shell, calls
+    // are routed through `invoke` instead — see src/domain/client.ts).
+    proxy: {
+      '/api': 'http://127.0.0.1:4100',
+    },
+  },
+})
