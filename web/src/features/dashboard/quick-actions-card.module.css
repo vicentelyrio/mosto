@@ -1,0 +1,30 @@
+.card {
+  background-color: var(--mantine-color-dark-7);
+  border: 1px solid var(--mantine-color-dark-5);
+  border-radius: var(--mantine-radius-lg);
+  padding: var(--mantine-spacing-md);
+}
+
+.title {
+  font-size: var(--mantine-font-size-xs);
+  color: var(--mantine-color-dimmed);
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: 0.06em;
+}
+
+.action {
+  display: block;
+  width: 100%;
+  text-align: left;
+  padding: 0.5625rem 0.875rem;
+  border-radius: var(--mantine-radius-sm);
+  border: 1px solid var(--mantine-color-dark-5);
+  font-size: var(--mantine-font-size-sm);
+  font-weight: 500;
+  transition: border-color 0.12s;
+}
+
+.action:hover {
+  border-color: var(--mantine-color-amber-5);
+}

@@ -1,0 +1,19 @@
+.stats {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(9.5rem, 1fr));
+  gap: var(--mantine-spacing-sm);
+  margin-bottom: var(--mantine-spacing-xl);
+}
+
+.layout {
+  display: grid;
+  grid-template-columns: 1fr 20rem;
+  gap: var(--mantine-spacing-lg);
+  align-items: start;
+}
+
+@media (max-width: 48em) {
+  .layout {
+    grid-template-columns: 1fr;
+  }
+}
