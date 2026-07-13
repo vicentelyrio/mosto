@@ -6,6 +6,7 @@ import { RecipeActionsMenu } from './recipe-actions-menu'
 import classes from './recipe-card.module.css'
 import { RecipeContextMenu } from './recipe-context-menu'
 import { srmToHex } from './srm'
+import { useRecipeActions } from './use-recipe-actions'
 
 const STATS = (recipe: Recipe) =>
   [
@@ -23,6 +24,7 @@ export function RecipeCard({
   onClick: () => void
 }) {
   const color = srmToHex(recipe.srm)
+  const { isBrewing } = useRecipeActions(recipe)
 
   return (
     <RecipeContextMenu recipe={recipe}>
@@ -31,20 +33,30 @@ export function RecipeCard({
         <Stack gap="sm" p="md">
           <Group justify="space-between" align="flex-start" wrap="nowrap">
             <Stack gap={0}>
-              <Text fw={700}>{recipe.name}</Text>
+              <Group gap="xs" wrap="nowrap">
+                <Text fw={700}>{recipe.name}</Text>
+                {isBrewing && (
+                  <Badge color="amber" variant="light" size="sm">
+                    Brewing
+                  </Badge>
+                )}
+              </Group>
               <Text size="xs" c="dimmed">
                 {recipe.style} · BJCP {recipe.bjcp_code}
               </Text>
             </Stack>
-            <Group gap="xs" wrap="nowrap">
+            <RecipeActionsMenu recipe={recipe} />
+          </Group>
+
+          {recipe.tags.length > 0 && (
+            <Group gap="xs">
               {recipe.tags.slice(0, 2).map((tag) => (
                 <Badge key={tag} variant="light" size="sm">
                   {tag}
                 </Badge>
               ))}
-              <RecipeActionsMenu recipe={recipe} />
             </Group>
-          </Group>
+          )}
 
           <SimpleGrid cols={4} spacing="xs">
             {STATS(recipe).map(([label, value]) => (

@@ -1,3 +1,5 @@
+import type { ReactNode } from 'react'
+
 import { ActionIcon, Box, Group, Text } from '@mantine/core'
 
 import { XIcon } from '@phosphor-icons/react'
@@ -9,11 +11,13 @@ export function RecipeDrawerHeader({
   name,
   subtitle,
   srm,
+  badge,
   onClose,
 }: {
   name: string
   subtitle: string
   srm: number
+  badge?: ReactNode
   onClose: () => void
 }) {
   return (
@@ -21,9 +25,12 @@ export function RecipeDrawerHeader({
       <Group wrap="nowrap" gap="sm">
         <Box className={classes.swatch} bg={srmToHex(srm)} />
         <Box>
-          <Text fw={800} size="lg">
-            {name}
-          </Text>
+          <Group gap="xs" wrap="nowrap">
+            <Text fw={800} size="lg">
+              {name}
+            </Text>
+            {badge}
+          </Group>
           <Text size="sm" c="dimmed">
             {subtitle}
           </Text>

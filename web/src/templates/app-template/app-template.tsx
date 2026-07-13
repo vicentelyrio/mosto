@@ -26,7 +26,6 @@ import {
   BookOpenTextIcon,
   CaretLeftIcon,
   CaretRightIcon,
-  CookingPotIcon,
   PackageIcon,
   SquaresFourIcon,
   WrenchIcon,
@@ -34,13 +33,14 @@ import {
 
 import { isTauri, useAuth } from '@domain'
 
+import { BrewingSidebarWidget } from '@features/brewday'
+
 import classes from './app-template.module.css'
 import { BrewLogo } from './brew-logo'
 
 const NAV = [
   { to: paths.dashboard, label: 'Dashboard', icon: SquaresFourIcon },
   { to: paths.recipes, label: 'Recipes', icon: BookOpenTextIcon },
-  { to: paths.brewday, label: 'Brew Day', icon: CookingPotIcon },
   { to: paths.inventory, label: 'Inventory', icon: PackageIcon },
   { to: paths.equipment, label: 'Equipment', icon: WrenchIcon },
   { to: paths.conversions, label: 'Conversions', icon: ArrowsLeftRightIcon },
@@ -124,6 +124,8 @@ export function AppTemplate() {
             })}
           </Stack>
         </ScrollArea>
+
+        {!collapsed && <BrewingSidebarWidget />}
 
         <UnstyledButton
           className={classes.collapseToggle}

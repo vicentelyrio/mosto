@@ -1,0 +1,33 @@
+.chip {
+  background-color: var(--mantine-color-dark-7);
+  border-radius: var(--mantine-radius-sm);
+  padding: 0.5rem 0.75rem;
+}
+
+.entry {
+  background-color: var(--mantine-color-dark-7);
+  border-radius: var(--mantine-radius-md);
+  padding: 0.5rem 0.75rem;
+}
+
+.dot {
+  width: 6px;
+  height: 6px;
+  border-radius: 50%;
+  background-color: var(--mantine-color-amber-5);
+  flex-shrink: 0;
+}
+
+.sgInput {
+  flex: 1;
+  min-width: 7rem;
+}
+
+.tempInput {
+  width: 4.5rem;
+}
+
+.noteInput {
+  flex: 2;
+  min-width: 7.5rem;
+}

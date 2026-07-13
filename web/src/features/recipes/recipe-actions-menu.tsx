@@ -1,6 +1,7 @@
 import { ActionIcon, Menu } from '@mantine/core'
 
 import {
+  CookingPotIcon,
   CopyIcon,
   DotsThreeVerticalIcon,
   DownloadSimpleIcon,
@@ -19,10 +20,8 @@ export function RecipeActionsMenu({
   recipe: Recipe
   onDeleted?: () => void
 }) {
-  const { edit, clone, exportBeerXml, confirmDelete } = useRecipeActions(
-    recipe,
-    onDeleted,
-  )
+  const { edit, startBrewing, isBrewing, clone, exportBeerXml, confirmDelete } =
+    useRecipeActions(recipe, onDeleted)
 
   return (
     <Menu position="bottom-end" withinPortal>
@@ -39,6 +38,12 @@ export function RecipeActionsMenu({
       <Menu.Dropdown>
         <Menu.Item leftSection={<PencilSimpleIcon size={16} />} onClick={edit}>
           Edit
+        </Menu.Item>
+        <Menu.Item
+          leftSection={<CookingPotIcon size={16} />}
+          onClick={startBrewing}
+        >
+          {isBrewing ? 'Resume Brewing' : 'Start Brewing'}
         </Menu.Item>
         <Menu.Item leftSection={<CopyIcon size={16} />} onClick={clone}>
           Clone

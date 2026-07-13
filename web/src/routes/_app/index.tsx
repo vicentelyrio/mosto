@@ -11,10 +11,9 @@ function Dashboard() {
   return (
     <PageTemplate title="Today">
       <Text c="dimmed">
-        The dashboard (active fermentation, schedule, restock) lands once
-        Inventory and Brew Day are wired up.{' '}
-        <Link to={paths.recipes}>Your recipe book is ready</Link> in the
-        meantime.
+        The dashboard (active fermentation, schedule, restock) lands once it's
+        wired up. <Link to={paths.recipes}>Your recipe book is ready</Link> in
+        the meantime.
       </Text>
     </PageTemplate>
   )

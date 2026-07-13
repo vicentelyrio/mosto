@@ -3,7 +3,7 @@ export const paths = {
   recipes: '/recipes',
   newRecipe: '/recipes/new',
   recipeDetail: '/recipes/$id',
-  brewday: '/brewday',
+  recipeBrewing: '/recipes/$id/brewing',
   inventory: '/inventory',
   newInventoryItem: '/inventory/new',
   inventoryItemDetail: '/inventory/$id',

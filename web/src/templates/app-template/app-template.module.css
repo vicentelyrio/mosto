@@ -116,11 +116,12 @@
 
 .main {
   background-color: var(--mantine-color-dark-9);
-  min-height: 100vh;
+  height: 100vh;
+  overflow-y: auto;
 }
 
 .mainInner {
-  height: 100%;
+  min-height: 100%;
 }
 
 .bottomNav {

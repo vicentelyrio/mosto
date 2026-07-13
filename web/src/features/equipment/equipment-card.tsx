@@ -35,15 +35,10 @@ export function EquipmentCard({
               </Text>
             </Box>
           </Group>
-          <Group gap="xs" wrap="nowrap">
-            <Badge color={CONDITION_COLOR[item.condition]} variant="light">
-              {CONDITION_LABEL[item.condition]}
-            </Badge>
-            <EquipmentActionsMenu item={item} onEdit={onEdit} />
-          </Group>
+          <EquipmentActionsMenu item={item} onEdit={onEdit} />
         </Group>
 
-        {(item.capacity || item.material) && (
+        <Group justify="space-between" gap="xs">
           <Group gap="xs">
             {item.capacity && item.capacity !== '—' && (
               <Text component="span" className={classes.chip}>
@@ -56,7 +51,10 @@ export function EquipmentCard({
               </Text>
             )}
           </Group>
-        )}
+          <Badge color={CONDITION_COLOR[item.condition]} variant="light">
+            {CONDITION_LABEL[item.condition]}
+          </Badge>
+        </Group>
 
         {item.notes && (
           <Text size="xs" c="dimmed" lh={1.5} className={classes.notes}>

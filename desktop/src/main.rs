@@ -44,6 +44,16 @@ fn main() {
             commands::equipment::equipment_create,
             commands::equipment::equipment_update,
             commands::equipment::equipment_delete,
+            commands::brewday::brewday_list_sessions,
+            commands::brewday::brewday_get_session,
+            commands::brewday::brewday_create_session,
+            commands::brewday::brewday_update_session_status,
+            commands::brewday::brewday_delete_session,
+            commands::brewday::brewday_list_completed_steps,
+            commands::brewday::brewday_set_step_completed,
+            commands::brewday::brewday_list_gravity_readings,
+            commands::brewday::brewday_add_gravity_reading,
+            commands::brewday::brewday_delete_gravity_reading,
         ])
         .run(tauri::generate_context!())
         .expect("error while running tauri application");

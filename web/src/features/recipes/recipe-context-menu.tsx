@@ -15,7 +15,7 @@ import type { Recipe } from '@domain'
 import { useRecipeActions } from './use-recipe-actions'
 
 /** Wraps its children with a right-click context menu offering the same
- *  actions as the kebab menu, plus "Start Brew Day". */
+ *  actions as the kebab menu, plus "Start Brewing". */
 export function RecipeContextMenu({
   recipe,
   onDeleted,
@@ -26,7 +26,7 @@ export function RecipeContextMenu({
   children: ReactNode
 }) {
   const [point, setPoint] = useState<{ x: number; y: number } | null>(null)
-  const { edit, startBrewDay, clone, exportBeerXml, confirmDelete } =
+  const { edit, startBrewing, isBrewing, clone, exportBeerXml, confirmDelete } =
     useRecipeActions(recipe, onDeleted)
 
   return (
@@ -64,9 +64,9 @@ export function RecipeContextMenu({
           </Menu.Item>
           <Menu.Item
             leftSection={<CookingPotIcon size={16} />}
-            onClick={startBrewDay}
+            onClick={startBrewing}
           >
-            Start Brew Day
+            {isBrewing ? 'Resume Brewing' : 'Start Brewing'}
           </Menu.Item>
           <Menu.Item leftSection={<CopyIcon size={16} />} onClick={clone}>
             Clone

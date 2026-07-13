@@ -4,7 +4,13 @@ import { useNavigate } from '@tanstack/react-router'
 import { Text } from '@mantine/core'
 import { modals } from '@mantine/modals'
 
-import { ApiError, downloadBeerXml, type Recipe, useRecipes } from '@domain'
+import {
+  ApiError,
+  downloadBeerXml,
+  type Recipe,
+  useBrewSessions,
+  useRecipes,
+} from '@domain'
 
 function showActionError(title: string, err: unknown) {
   modals.open({
@@ -17,12 +23,18 @@ function showActionError(title: string, err: unknown) {
   })
 }
 
-/** Shared recipe actions (edit/brew day/clone/export/delete) used by both
+/** Shared recipe actions (edit/brewing/clone/export/delete) used by both
  *  the kebab menu and the card's right-click context menu, so the mutation
  *  and navigation logic only lives in one place. */
 export function useRecipeActions(recipe: Recipe, onDeleted?: () => void) {
   const navigate = useNavigate()
   const { create, remove } = useRecipes()
+  const { sessions, create: createSession } = useBrewSessions()
+
+  const activeSession = sessions.find(
+    (s) => s.recipe_id === recipe.id && s.status !== 'archived',
+  )
+  const isBrewing = !!activeSession
 
   const edit = () =>
     navigate({
@@ -31,7 +43,26 @@ export function useRecipeActions(recipe: Recipe, onDeleted?: () => void) {
       search: { edit: true },
     })
 
-  const startBrewDay = () => navigate({ to: paths.brewday })
+  const goToBrewing = () =>
+    navigate({ to: paths.recipeBrewing, params: { id: recipe.id } })
+
+  const startBrewing = () => {
+    if (activeSession) {
+      goToBrewing()
+      return
+    }
+    createSession.mutate(
+      {
+        recipe_id: recipe.id,
+        status: 'brewing',
+        started_at: Math.floor(Date.now() / 1000),
+      },
+      {
+        onSuccess: goToBrewing,
+        onError: (err) => showActionError("Couldn't start brewing", err),
+      },
+    )
+  }
 
   const clone = () => {
     const { id: _id, created_at: _createdAt, ...input } = recipe
@@ -64,5 +95,5 @@ export function useRecipeActions(recipe: Recipe, onDeleted?: () => void) {
         }),
     })
 
-  return { edit, startBrewDay, clone, exportBeerXml, confirmDelete }
+  return { edit, startBrewing, isBrewing, clone, exportBeerXml, confirmDelete }
 }

@@ -1,4 +1,5 @@
 mod auth;
+mod brewday;
 mod config;
 mod equipment;
 mod inventory;
@@ -47,6 +48,7 @@ async fn main() {
     let protected = recipes::routes()
         .merge(inventory::routes())
         .merge(equipment::routes())
+        .merge(brewday::routes())
         .merge(auth::authed_routes())
         .route_layer(middleware::from_fn_with_state(
             state.clone(),

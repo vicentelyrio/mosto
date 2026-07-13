@@ -4,6 +4,7 @@ import { paths } from '@infrastructure'
 import { useNavigate } from '@tanstack/react-router'
 
 import {
+  Badge,
   Box,
   Button,
   Center,
@@ -25,6 +26,7 @@ import classes from './recipe-detail-drawer.module.css'
 import drawerClasses from './recipe-drawer.module.css'
 import { RecipeDrawerHeader } from './recipe-drawer-header'
 import { RecipeFormDrawer } from './recipe-form'
+import { useRecipeActions } from './use-recipe-actions'
 
 function StatPill({ label, value }: { label: string; value: string | number }) {
   return (
@@ -206,6 +208,7 @@ function ViewMode({ recipe }: { recipe: Recipe }) {
   const navigate = useNavigate()
   const [tab, setTab] = useState<string | null>('overview')
   const [scale, setScale] = useState(recipe.batch_size)
+  const { startBrewing, isBrewing } = useRecipeActions(recipe)
 
   useEffect(() => {
     setScale(recipe.batch_size)
@@ -221,6 +224,13 @@ function ViewMode({ recipe }: { recipe: Recipe }) {
         name={recipe.name}
         subtitle={`${recipe.style} · BJCP ${recipe.bjcp_code}`}
         srm={recipe.srm}
+        badge={
+          isBrewing && (
+            <Badge color="amber" variant="light">
+              Brewing
+            </Badge>
+          )
+        }
         onClose={close}
       />
 
@@ -294,8 +304,8 @@ function ViewMode({ recipe }: { recipe: Recipe }) {
       </Box>
 
       <Group className={drawerClasses.footer} wrap="nowrap">
-        <Button flex={1} onClick={() => navigate({ to: paths.brewday })}>
-          Start Brew Day →
+        <Button flex={1} onClick={startBrewing}>
+          {isBrewing ? 'Resume Brewing →' : 'Start Brewing →'}
         </Button>
         <RecipeActionsMenu recipe={recipe} onDeleted={close} />
       </Group>
