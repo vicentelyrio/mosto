@@ -1,22 +1,29 @@
 import { useState } from 'react'
 
-import { Box, Button, Group, Stack, Text, UnstyledButton } from '@mantine/core'
+import { Badge, Box, Group, Stack, Text, UnstyledButton } from '@mantine/core'
 
-import { CheckIcon, PlayIcon } from '@phosphor-icons/react'
+import { CheckIcon } from '@phosphor-icons/react'
 
+import { formatClock, formatDuration } from './format'
 import type { BrewStep } from './steps'
 import classes from './steps-list.module.css'
 
 export function StepsList({
   steps,
   completedIds,
+  currentStepId,
+  liveStarted,
+  liveDisplaySeconds,
+  liveIsOvertime,
   onToggle,
-  onStartTimer,
 }: {
   steps: BrewStep[]
   completedIds: number[]
+  currentStepId: number | null
+  liveStarted: boolean
+  liveDisplaySeconds: number
+  liveIsOvertime: boolean
   onToggle: (stepId: number) => void
-  onStartTimer: (minutes: number) => void
 }) {
   const [activeStep, setActiveStep] = useState<number | null>(null)
   const phases = [...new Set(steps.map((s) => s.phase))]
@@ -38,12 +45,14 @@ export function StepsList({
               .map((step) => {
                 const done = completedIds.includes(step.id)
                 const active = activeStep === step.id
+                const isNow = currentStepId === step.id
                 return (
                   <UnstyledButton
                     key={step.id}
                     className={classes.step}
                     data-active={active || undefined}
                     data-done={done || undefined}
+                    data-timing={isNow || undefined}
                     onClick={() => setActiveStep(active ? null : step.id)}
                   >
                     <Group gap="sm" wrap="nowrap" align="flex-start">
@@ -58,14 +67,21 @@ export function StepsList({
                         {done && <CheckIcon size={12} weight="bold" />}
                       </UnstyledButton>
                       <Box flex={1}>
-                        <Text
-                          size="sm"
-                          fw={600}
-                          c={done ? 'dimmed' : undefined}
-                          td={done ? 'line-through' : undefined}
-                        >
-                          {step.label}
-                        </Text>
+                        <Group gap={6}>
+                          <Text
+                            size="sm"
+                            fw={600}
+                            c={done ? 'dimmed' : undefined}
+                            td={done ? 'line-through' : undefined}
+                          >
+                            {step.label}
+                          </Text>
+                          {isNow && (
+                            <Badge size="xs" color="amber">
+                              Now
+                            </Badge>
+                          )}
+                        </Group>
                         {step.detail && (
                           <Text size="xs" c="dimmed" mt={2}>
                             {step.detail}
@@ -73,17 +89,23 @@ export function StepsList({
                         )}
                       </Box>
                       {step.duration > 0 && (
-                        <Button
-                          size="compact-xs"
-                          variant="default"
-                          leftSection={<PlayIcon size={10} />}
-                          onClick={(e) => {
-                            e.stopPropagation()
-                            onStartTimer(step.duration)
-                          }}
+                        <Text
+                          size="xs"
+                          fw={600}
+                          ff="monospace"
+                          c={
+                            isNow && liveStarted
+                              ? liveIsOvertime
+                                ? 'red'
+                                : 'amber'
+                              : 'dimmed'
+                          }
+                          className={classes.durationBadge}
                         >
-                          {step.duration}m
-                        </Button>
+                          {isNow && liveStarted
+                            ? `${liveIsOvertime ? '+' : ''}${formatClock(liveDisplaySeconds)}`
+                            : formatDuration(step.duration)}
+                        </Text>
                       )}
                     </Group>
                   </UnstyledButton>

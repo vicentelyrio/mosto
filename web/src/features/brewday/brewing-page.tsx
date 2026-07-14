@@ -1,9 +1,10 @@
-import { useMemo } from 'react'
+import { useMemo, useState } from 'react'
 
 import { paths } from '@infrastructure'
 import { useNavigate } from '@tanstack/react-router'
 
 import {
+  ActionIcon,
   Alert,
   Badge,
   Box,
@@ -12,26 +13,39 @@ import {
   Container,
   Group,
   Loader,
-  Progress,
+  Menu,
   Stack,
   Tabs,
   Text,
   Title,
   UnstyledButton,
 } from '@mantine/core'
+import { modals } from '@mantine/modals'
 
-import { ArrowLeftIcon } from '@phosphor-icons/react'
+import {
+  ArrowLeftIcon,
+  DotsThreeVerticalIcon,
+  TrashIcon,
+  XCircleIcon,
+} from '@phosphor-icons/react'
 
-import { useBrewSessions, useRecipe, useStepCompletions } from '@domain'
+import {
+  useBrewSessions,
+  useRecipe,
+  useSessionStatus,
+  useStepCompletions,
+} from '@domain'
 
 import { srmToHex } from '@features/recipes'
 
+import { BatchTimeline } from './batch-timeline'
 import classes from './brewing-page.module.css'
+import { CompletionCard } from './completion-card'
 import { GravityLog } from './gravity-log'
 import { HopSchedule } from './hop-schedule'
+import { NowCard } from './now-card'
 import { generateSteps } from './steps'
 import { StepsList } from './steps-list'
-import { Timer } from './timer'
 import { useTimer } from './use-timer'
 import { YeastCalcPanel } from './yeast-calc-panel'
 
@@ -42,13 +56,17 @@ export function BrewingPage({ recipeId }: { recipeId: string }) {
     sessions,
     query: sessionsQuery,
     create: createSession,
+    remove: removeSession,
   } = useBrewSessions()
   const timer = useTimer()
+  const [timerStepId, setTimerStepId] = useState<number | null>(null)
+  const [tab, setTab] = useState<string | null>('steps')
 
   const session = sessions
     .filter((s) => s.recipe_id === recipeId && s.status !== 'archived')
     .at(-1)
 
+  const { update: updateStatus } = useSessionStatus(session)
   const { completedSteps, toggle } = useStepCompletions(session?.id)
 
   const steps = useMemo(() => (recipe ? generateSteps(recipe) : []), [recipe])
@@ -57,13 +75,87 @@ export function BrewingPage({ recipeId }: { recipeId: string }) {
       ? 0
       : Math.round((completedSteps.length / steps.length) * 100)
 
-  const startTimerForStep = (minutes: number) => {
-    timer.startWithMinutes(minutes)
+  const current = useMemo(
+    () => steps.find((s) => !completedSteps.includes(s.id)) ?? null,
+    [steps, completedSteps],
+  )
+  const next = useMemo(() => {
+    if (!current) return null
+    const idx = steps.findIndex((s) => s.id === current.id)
+    return (
+      steps.slice(idx + 1).find((s) => !completedSteps.includes(s.id)) ?? null
+    )
+  }, [steps, completedSteps, current])
+
+  const started = current !== null && timerStepId === current.id
+  const currentElapsedMinutes =
+    current && started
+      ? Math.min(current.duration, Math.max(0, timer.elapsedSeconds / 60))
+      : 0
+
+  const handleStart = () => {
+    if (!current) return
+    timer.startWithMinutes(current.duration)
     timer.setRunning(true)
+    setTimerStepId(current.id)
+  }
+
+  const handleConfirm = () => {
+    if (!current) return
+    toggle.mutate({ stepId: current.id, completed: true })
+    if (next && next.duration > 0) {
+      timer.startWithMinutes(next.duration)
+      timer.setRunning(true)
+      setTimerStepId(next.id)
+    } else {
+      timer.reset()
+      setTimerStepId(null)
+    }
+  }
+
+  const handleManualToggle = (stepId: number) => {
+    const done = completedSteps.includes(stepId)
+    toggle.mutate({ stepId, completed: !done })
+    timer.reset()
+    setTimerStepId(null)
   }
 
   const backToRecipe = () =>
     navigate({ to: paths.recipeDetail, params: { id: recipeId } })
+
+  const confirmCancel = () => {
+    if (!recipe) return
+    modals.openConfirmModal({
+      title: 'Cancel batch',
+      children: (
+        <Text size="sm">
+          Cancel brewing <strong>{recipe.name}</strong>? This archives the
+          session — logged steps and gravity readings are kept, but it moves out
+          of your active brews.
+        </Text>
+      ),
+      labels: { confirm: 'Cancel Batch', cancel: 'Keep Brewing' },
+      confirmProps: { color: 'red' },
+      onConfirm: () => updateStatus.mutate('archived'),
+    })
+  }
+
+  const confirmDelete = () => {
+    if (!recipe || !session) return
+    modals.openConfirmModal({
+      title: 'Delete batch',
+      children: (
+        <Text size="sm">
+          Permanently delete this brew session for{' '}
+          <strong>{recipe.name}</strong>? All logged steps and gravity readings
+          will be lost. This can't be undone.
+        </Text>
+      ),
+      labels: { confirm: 'Delete', cancel: 'Cancel' },
+      confirmProps: { color: 'red' },
+      onConfirm: () => removeSession.mutate(session.id),
+    })
+  }
 
   if (isLoading || sessionsQuery.isLoading) {
     return (
@@ -103,8 +195,8 @@ export function BrewingPage({ recipeId }: { recipeId: string }) {
             <Group gap="xs" wrap="nowrap">
               <Title order={1}>{recipe.name}</Title>
               {session && (
-                <Badge color="amber" variant="light" size="lg">
-                  Brewing
+                <Badge color="amber" variant="light" size="lg" tt="uppercase">
+                  {session.status}
                 </Badge>
               )}
             </Group>
@@ -115,14 +207,43 @@ export function BrewingPage({ recipeId }: { recipeId: string }) {
         </Group>
 
         {session && (
-          <Box ta="right">
-            <Text fw={800} size="xl" c="amber">
-              {donePct}%
-            </Text>
-            <Text size="xs" c="dimmed">
-              {completedSteps.length}/{steps.length} steps done
-            </Text>
-          </Box>
+          <Group align="flex-start" gap="sm" wrap="nowrap">
+            <Box ta="right">
+              <Text fw={800} size="xl" c="amber">
+                {donePct}%
+              </Text>
+              <Text size="xs" c="dimmed">
+                {completedSteps.length}/{steps.length} steps done
+              </Text>
+            </Box>
+            <Menu position="bottom-end" withinPortal>
+              <Menu.Target>
+                <ActionIcon
+                  variant="default"
+                  color="gray"
+                  aria-label="Batch actions"
+                >
+                  <DotsThreeVerticalIcon size={18} weight="bold" />
+                </ActionIcon>
+              </Menu.Target>
+              <Menu.Dropdown>
+                <Menu.Item
+                  color="red"
+                  leftSection={<XCircleIcon size={16} />}
+                  onClick={confirmCancel}
+                >
+                  Cancel Batch
+                </Menu.Item>
+                <Menu.Item
+                  color="red"
+                  leftSection={<TrashIcon size={16} />}
+                  onClick={confirmDelete}
+                >
+                  Delete Batch
+                </Menu.Item>
+              </Menu.Dropdown>
+            </Menu>
+          </Group>
         )}
       </Group>
 
@@ -145,56 +266,75 @@ export function BrewingPage({ recipeId }: { recipeId: string }) {
           </Button>
         </Stack>
       ) : (
-        <>
-          <Progress value={donePct} color="amber" size="sm" mb="lg" />
+        <Tabs
+          value={tab}
+          onChange={setTab}
+          variant="pills"
+          classNames={{ tab: classes.tab }}
+        >
+          <Tabs.List mb="lg">
+            <Tabs.Tab value="steps">Batch</Tabs.Tab>
+            <Tabs.Tab value="gravity">Gravity Log</Tabs.Tab>
+            <Tabs.Tab value="yeast">Yeast Calc</Tabs.Tab>
+            <Tabs.Tab value="hops">Hop Schedule</Tabs.Tab>
+          </Tabs.List>
 
-          <Box className={classes.timerStrip} mb="lg" p="md">
-            <Timer
-              seconds={timer.seconds}
-              running={timer.running}
-              onToggle={timer.toggle}
-              onReset={timer.reset}
-              onPreset={timer.startWithMinutes}
+          <Tabs.Panel value="steps">
+            <BatchTimeline
+              steps={steps}
+              completedIds={completedSteps}
+              current={current}
+              currentElapsedMinutes={currentElapsedMinutes}
             />
-          </Box>
 
-          <Tabs
-            defaultValue="steps"
-            variant="pills"
-            classNames={{ tab: classes.tab }}
-          >
-            <Tabs.List mb="lg">
-              <Tabs.Tab value="steps">Steps</Tabs.Tab>
-              <Tabs.Tab value="gravity">Gravity Log</Tabs.Tab>
-              <Tabs.Tab value="yeast">Yeast Calc</Tabs.Tab>
-              <Tabs.Tab value="hops">Hop Schedule</Tabs.Tab>
-            </Tabs.List>
-
-            <Tabs.Panel value="steps">
-              <StepsList
-                steps={steps}
-                completedIds={completedSteps}
-                onToggle={(stepId) => {
-                  const done = completedSteps.includes(stepId)
-                  toggle.mutate({ stepId, completed: !done })
-                }}
-                onStartTimer={startTimerForStep}
+            {current ? (
+              <NowCard
+                step={current}
+                next={next}
+                started={started}
+                running={timer.running}
+                displaySeconds={timer.displaySeconds}
+                isOvertime={timer.isOvertime}
+                targetSeconds={timer.targetSeconds}
+                elapsedSeconds={timer.elapsedSeconds}
+                onStart={handleStart}
+                onPauseResume={timer.toggle}
+                onPlus5={() => timer.addMinutes(5)}
+                onConfirm={handleConfirm}
               />
-            </Tabs.Panel>
+            ) : (
+              <CompletionCard
+                recipeName={recipe.name}
+                stepCount={steps.length}
+                status={session.status}
+                onLogGravity={() => setTab('gravity')}
+                onMarkFermenting={() => updateStatus.mutate('fermenting')}
+              />
+            )}
 
-            <Tabs.Panel value="gravity">
-              <GravityLog sessionId={session.id} recipe={recipe} />
-            </Tabs.Panel>
+            <StepsList
+              steps={steps}
+              completedIds={completedSteps}
+              currentStepId={current?.id ?? null}
+              liveStarted={started}
+              liveDisplaySeconds={timer.displaySeconds}
+              liveIsOvertime={timer.isOvertime}
+              onToggle={handleManualToggle}
+            />
+          </Tabs.Panel>
 
-            <Tabs.Panel value="yeast">
-              <YeastCalcPanel recipe={recipe} />
-            </Tabs.Panel>
+          <Tabs.Panel value="gravity">
+            <GravityLog sessionId={session.id} recipe={recipe} />
+          </Tabs.Panel>
 
-            <Tabs.Panel value="hops">
-              <HopSchedule recipe={recipe} />
-            </Tabs.Panel>
-          </Tabs>
-        </>
+          <Tabs.Panel value="yeast">
+            <YeastCalcPanel recipe={recipe} />
+          </Tabs.Panel>
+
+          <Tabs.Panel value="hops">
+            <HopSchedule recipe={recipe} />
+          </Tabs.Panel>
+        </Tabs>
       )}
     </Container>
   )

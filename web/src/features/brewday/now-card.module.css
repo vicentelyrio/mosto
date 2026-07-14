@@ -1,0 +1,27 @@
+@keyframes pulseRing {
+  0%,
+  100% {
+    box-shadow: 0 0 0 0 var(--mantine-color-red-light);
+  }
+  50% {
+    box-shadow: 0 0 0 8px transparent;
+  }
+}
+
+.overtime {
+  animation: pulseRing 1.6s ease-in-out infinite;
+}
+
+@keyframes blink {
+  0%,
+  100% {
+    opacity: 1;
+  }
+  50% {
+    opacity: 0.3;
+  }
+}
+
+.blink {
+  animation: blink 1.2s ease-in-out infinite;
+}
