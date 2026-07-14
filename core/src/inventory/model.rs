@@ -24,7 +24,7 @@ impl InventoryCategory {
         }
     }
 
-    pub fn from_str(s: &str) -> Self {
+    pub fn from_code(s: &str) -> Self {
         match s {
             "grain" => InventoryCategory::Grain,
             "hop" => InventoryCategory::Hop,

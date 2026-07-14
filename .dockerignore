@@ -1,0 +1,13 @@
+target
+desktop/target
+desktop/gen
+node_modules
+web/node_modules
+web/dist
+web/.tanstack
+*.db
+*.db-wal
+*.db-shm
+.env
+.git
+.github

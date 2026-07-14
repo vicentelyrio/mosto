@@ -56,6 +56,7 @@ fn yeast(name: &str, attenuation: f64, temp_range: &str, form: &str) -> RecipeYe
     }
 }
 
+#[allow(clippy::too_many_arguments)]
 fn water(volume: f64, ph: f64, ca: f64, mg: f64, na: f64, so4: f64, cl: f64, hco3: f64) -> WaterProfile {
     WaterProfile { volume, ph, ca, mg, na, so4, cl, hco3 }
 }

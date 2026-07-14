@@ -8,7 +8,7 @@ use crate::util::now;
 fn row_to_item(row: &SqliteRow) -> InventoryItem {
     InventoryItem {
         id: row.get("id"),
-        category: InventoryCategory::from_str(&row.get::<String, _>("category")),
+        category: InventoryCategory::from_code(&row.get::<String, _>("category")),
         name: row.get("name"),
         amount: row.get("amount"),
         unit: row.get("unit"),

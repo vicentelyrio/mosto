@@ -1,0 +1,13 @@
+services:
+  mosto:
+    image: ghcr.io/vicentelyrio/mosto:latest
+    # To build the image locally instead of pulling, comment out `image` above
+    # and uncomment the next line:
+    # build: .
+    ports:
+      - "4100:4100"
+    volumes:
+      - ./data:/data
+    environment:
+      MOSTO_OWNER_PASSWORD_HASH: ${MOSTO_OWNER_PASSWORD_HASH:?set MOSTO_OWNER_PASSWORD_HASH in .env}
+    restart: unless-stopped
