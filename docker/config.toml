@@ -1,0 +1,7 @@
+listen = "0.0.0.0:4100"
+db_path = "/data/mosto.db"
+
+[auth]
+owner_username = "brewer"
+secure_cookies = true
+session_ttl_days = 30

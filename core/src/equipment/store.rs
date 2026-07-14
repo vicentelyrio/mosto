@@ -12,7 +12,7 @@ fn row_to_equipment(row: &SqliteRow) -> Equipment {
         r#type: row.get("type"),
         capacity: row.get("capacity"),
         material: row.get("material"),
-        condition: Condition::from_str(&row.get::<String, _>("condition")),
+        condition: Condition::from_code(&row.get::<String, _>("condition")),
         notes: row.get("notes"),
         created_at: row.get("created_at"),
     }

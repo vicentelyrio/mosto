@@ -10,7 +10,7 @@ fn row_to_session(row: &SqliteRow) -> BrewSession {
     BrewSession {
         id: row.get("id"),
         recipe_id: row.get("recipe_id"),
-        status: SessionStatus::from_str(&row.get::<String, _>("status")),
+        status: SessionStatus::from_code(&row.get::<String, _>("status")),
         started_at: row.get("started_at"),
     }
 }

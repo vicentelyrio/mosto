@@ -49,10 +49,10 @@ impl Config {
 
         // A relative db_path means "next to config.toml", not "next to
         // whatever directory the process happened to be started from".
-        if config.db_path.is_relative() {
-            if let Some(dir) = std::path::Path::new(path).parent().filter(|d| !d.as_os_str().is_empty()) {
-                config.db_path = dir.join(&config.db_path);
-            }
+        if config.db_path.is_relative()
+            && let Some(dir) = std::path::Path::new(path).parent().filter(|d| !d.as_os_str().is_empty())
+        {
+            config.db_path = dir.join(&config.db_path);
         }
 
         config

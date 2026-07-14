@@ -18,7 +18,7 @@ impl Condition {
         }
     }
 
-    pub fn from_str(s: &str) -> Self {
+    pub fn from_code(s: &str) -> Self {
         match s {
             "good" => Condition::Good,
             "fair" => Condition::Fair,

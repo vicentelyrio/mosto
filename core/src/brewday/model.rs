@@ -24,7 +24,7 @@ impl SessionStatus {
         }
     }
 
-    pub fn from_str(s: &str) -> Self {
+    pub fn from_code(s: &str) -> Self {
         match s {
             "planning" => SessionStatus::Planning,
             "brewing" => SessionStatus::Brewing,
