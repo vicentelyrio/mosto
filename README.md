@@ -19,6 +19,17 @@ server and a Tauri desktop app.
 - **Dashboard** — overview of active brews, recent recipes, and low stock
 - Single-user (owner) authentication
 
+## Screenshots
+
+![Dashboard](docs/screenshots/dashboard.png)
+![Recipes](docs/screenshots/recipes.png)
+![Recipe details](docs/screenshots/recipes-details.png)
+![Recipe hop schedule](docs/screenshots/recipes-details-hop.png)
+![Brewing](docs/screenshots/brewing.png)
+![Inventory](docs/screenshots/inventory.png)
+![Equipment](docs/screenshots/Equipment.png)
+![Conversions](docs/screenshots/conversions.png)
+
 ## Project layout
 
 - `core/` — shared Rust domain logic and SQLite access (`mosto-core`)
