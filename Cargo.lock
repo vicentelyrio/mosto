@@ -2119,7 +2119,7 @@ dependencies = [
 
 [[package]]
 name = "mosto-core"
-version = "0.1.0"
+version = "0.2.1"
 dependencies = [
  "serde",
  "sqlx",
@@ -2130,7 +2130,7 @@ dependencies = [
 
 [[package]]
 name = "mosto-desktop"
-version = "0.1.0"
+version = "0.2.1"
 dependencies = [
  "mosto-core",
  "serde",
@@ -2143,7 +2143,7 @@ dependencies = [
 
 [[package]]
 name = "mosto-server"
-version = "0.1.0"
+version = "0.2.1"
 dependencies = [
  "argon2",
  "axum",

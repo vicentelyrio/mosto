@@ -9,7 +9,14 @@ permissions:
   packages: write
 
 jobs:
+  version-sync:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - run: ./scripts/check-version-sync.sh ${{ github.ref_name }}
+
   docker:
+    needs: version-sync
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
@@ -37,6 +44,7 @@ jobs:
           cache-to: type=gha,mode=max
 
   server-binary:
+    needs: version-sync
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
@@ -70,7 +78,7 @@ jobs:
           generate_release_notes: true
 
   desktop:
-    needs: server-binary
+    needs: [version-sync, server-binary]
     strategy:
       fail-fast: false
       matrix:
