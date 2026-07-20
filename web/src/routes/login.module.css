@@ -1,0 +1,36 @@
+.page {
+  min-height: 100vh;
+  width: 100%;
+  display: grid;
+  place-items: center;
+  background-color: var(--mantine-color-dark-9);
+  padding: var(--mantine-spacing-md);
+}
+
+.wrap {
+  width: 100%;
+  max-width: 23.75rem;
+}
+
+.title {
+  font-weight: 800;
+  font-size: var(--mantine-font-size-xl);
+  letter-spacing: -0.02em;
+}
+
+.label {
+  font-family: var(--mantine-font-family-monospace);
+  font-size: 0.625rem;
+  font-weight: 600;
+  letter-spacing: 0.1em;
+  color: var(--mantine-color-dark-4);
+}
+
+.footer {
+  text-align: center;
+  margin-top: var(--mantine-spacing-lg);
+  font-family: var(--mantine-font-family-monospace);
+  font-size: var(--mantine-font-size-xs);
+  letter-spacing: 0.06em;
+  color: var(--mantine-color-dark-4);
+}
