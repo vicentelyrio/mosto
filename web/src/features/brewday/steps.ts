@@ -1,3 +1,5 @@
+import type { TranslationFunctions } from '@i18n/i18n-types'
+
 import type { Recipe } from '@domain'
 
 export interface BrewStep {
@@ -18,110 +20,135 @@ function rangeStart(range: string): string {
  *  `RecipeHop.use` instead of a separate "Flameout" value — a flameout/
  *  whirlpool addition is just a Boil hop with `time: 0`, so it naturally
  *  sorts last among the boil additions below). */
-export function generateSteps(recipe: Recipe): BrewStep[] {
+export function generateSteps(
+  LL: TranslationFunctions,
+  recipe: Recipe,
+): BrewStep[] {
   const totalGrain = recipe.grains.reduce((sum, g) => sum + g.amount, 0)
   const mashStep = recipe.mash?.steps[0]
   const water = recipe.water
   const yeast = recipe.yeasts[0]
+  const p = LL.brewday.steps.phases
 
   const steps: Omit<BrewStep, 'id'>[] = [
     {
-      phase: 'Prep',
-      label: 'Review Recipe & Gather Equipment',
+      phase: p.prep(),
+      label: LL.brewday.steps.review.label(),
       duration: 0,
-      detail: `Batch: ${recipe.batch_size} gal · Efficiency: ${recipe.efficiency}%`,
+      detail: LL.brewday.steps.review.detail({
+        size: recipe.batch_size,
+        eff: recipe.efficiency,
+      }),
     },
     {
-      phase: 'Prep',
-      label: 'Mill Grain',
+      phase: p.prep(),
+      label: LL.brewday.steps.millGrain.label(),
       duration: 15,
       detail:
         totalGrain > 0
-          ? `Total grain: ${totalGrain.toFixed(1)} lb — set gap to 0.040"`
-          : 'No grain bill recorded',
+          ? LL.brewday.steps.millGrain.detailWithGrain({
+              total: totalGrain.toFixed(1),
+            })
+          : LL.brewday.steps.millGrain.detailNoGrain(),
     },
     {
-      phase: 'Mash',
-      label: 'Heat Strike Water',
+      phase: p.mash(),
+      label: LL.brewday.steps.heatStrike.label(),
       duration: 20,
       detail:
         water && mashStep
-          ? `Heat ${(water.volume * 0.55).toFixed(1)} gal to ${mashStep.step_temp + 12}°F`
-          : 'No water profile / mash schedule recorded',
+          ? LL.brewday.steps.heatStrike.detail({
+              vol: (water.volume * 0.55).toFixed(1),
+              temp: mashStep.step_temp + 12,
+            })
+          : LL.brewday.steps.heatStrike.noData(),
     },
     {
-      phase: 'Mash',
-      label: 'Mash In',
+      phase: p.mash(),
+      label: LL.brewday.steps.mashIn.label(),
       duration: 5,
       detail: mashStep
-        ? `Target mash temp: ${mashStep.step_temp}°F — stir well`
-        : 'No mash schedule recorded',
+        ? LL.brewday.steps.mashIn.detail({ temp: mashStep.step_temp })
+        : LL.brewday.steps.mashIn.noSchedule(),
     },
     {
-      phase: 'Mash',
-      label: 'Mash Rest',
+      phase: p.mash(),
+      label: LL.brewday.steps.mashRest.label(),
       duration: mashStep?.step_time ?? 60,
       detail: mashStep
-        ? `Hold at ${mashStep.step_temp}°F — check temp every 15 min`
-        : 'No mash schedule recorded',
+        ? LL.brewday.steps.mashRest.detail({ temp: mashStep.step_temp })
+        : LL.brewday.steps.mashIn.noSchedule(),
     },
     {
-      phase: 'Lauter',
-      label: 'Vorlauf',
+      phase: p.lauter(),
+      label: LL.brewday.steps.vorlauf.label(),
       duration: 10,
-      detail: 'Recirculate until runoff runs clear (~2 qt)',
+      detail: LL.brewday.steps.vorlauf.detail(),
     },
     {
-      phase: 'Lauter',
-      label: 'Sparge & Collect Wort',
+      phase: p.lauter(),
+      label: LL.brewday.steps.sparge.label(),
       duration: 30,
       detail: water
-        ? `Collect ${water.volume.toFixed(1)} gal pre-boil wort`
-        : 'No water profile recorded',
+        ? LL.brewday.steps.sparge.detail({ vol: water.volume.toFixed(1) })
+        : LL.brewday.steps.sparge.noProfile(),
     },
     {
-      phase: 'Boil',
-      label: 'Bring to Boil',
+      phase: p.boil(),
+      label: LL.brewday.steps.bringToBoil.label(),
       duration: 15,
-      detail: 'Watch for hot break and boil-over',
+      detail: LL.brewday.steps.bringToBoil.detail(),
     },
     ...recipe.hops
       .filter((h) => h.use === 'Boil')
       .sort((a, b) => b.time - a.time)
       .map((h) => ({
-        phase: 'Boil',
+        phase: p.boil(),
         label:
-          h.time === 0 ? `Flameout — ${h.name}` : `Hop Addition — ${h.name}`,
+          h.time === 0
+            ? LL.brewday.steps.flameout({ name: h.name })
+            : LL.brewday.steps.hopAddition({ name: h.name }),
         duration: 0,
-        detail: `${h.amount} ${h.unit} ${h.name} · @${h.time} min · ${h.alpha}% AA`,
+        detail: LL.brewday.steps.hopDetail({
+          amount: h.amount,
+          unit: h.unit,
+          name: h.name,
+          time: h.time,
+          alpha: h.alpha,
+        }),
       })),
     {
-      phase: 'Chill',
-      label: 'Chill Wort to Pitch Temp',
+      phase: p.chill(),
+      label: LL.brewday.steps.chillWort.label(),
       duration: 20,
       detail: yeast
-        ? `Target: ${rangeStart(yeast.temp_range)}°F — sanitize fermentor while chilling`
-        : 'No yeast recorded',
+        ? LL.brewday.steps.chillWort.detail({
+            temp: rangeStart(yeast.temp_range),
+          })
+        : LL.brewday.steps.noYeastRecorded(),
     },
     {
-      phase: 'Ferment',
-      label: 'Transfer to Fermentor',
+      phase: p.ferment(),
+      label: LL.brewday.steps.transfer.label(),
       duration: 10,
-      detail: `Measure OG (target: ${recipe.og}) and take refractometer reading`,
+      detail: LL.brewday.steps.transfer.detail({ og: recipe.og }),
     },
     {
-      phase: 'Ferment',
-      label: 'Pitch Yeast',
+      phase: p.ferment(),
+      label: LL.brewday.steps.pitchYeast.label(),
       duration: 5,
       detail: yeast
-        ? `${yeast.name} — ferment at ${yeast.temp_range}`
-        : 'No yeast recorded',
+        ? LL.brewday.steps.pitchYeast.detail({
+            name: yeast.name,
+            range: yeast.temp_range,
+          })
+        : LL.brewday.steps.noYeastRecorded(),
     },
     {
-      phase: 'Ferment',
-      label: 'Seal & Attach Airlock',
+      phase: p.ferment(),
+      label: LL.brewday.steps.seal.label(),
       duration: 5,
-      detail: 'Fill airlock with sanitizer, label fermentor with date',
+      detail: LL.brewday.steps.seal.detail(),
     },
   ]
 

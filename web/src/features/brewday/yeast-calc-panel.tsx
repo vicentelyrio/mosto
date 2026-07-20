@@ -1,5 +1,7 @@
 import { useState } from 'react'
 
+import { useI18nContext } from '@i18n/i18n-react'
+
 import {
   Box,
   Group,
@@ -42,6 +44,7 @@ function StatTile({
 }
 
 export function YeastCalcPanel({ recipe }: { recipe: Recipe }) {
+  const { LL } = useI18nContext()
   const [volume, setVolume] = useState<number | ''>(recipe.batch_size)
   const [og, setOg] = useState<number | ''>(recipe.og)
   const [form, setForm] = useState<YeastForm>('liquid')
@@ -55,40 +58,51 @@ export function YeastCalcPanel({ recipe }: { recipe: Recipe }) {
   return (
     <Stack gap="lg">
       <Text fw={700} size="md">
-        Yeast Pitch Calculator
+        {LL.brewday.yeastCalc.title()}
       </Text>
 
       <SimpleGrid cols={3}>
         <NumberInput
-          label="Volume (gal)"
+          label={LL.brewday.yeastCalc.volumeLabel()}
           value={volume}
           onChange={(v) => setVolume(v === '' ? '' : Number(v))}
           step={0.5}
           hideControls
         />
         <NumberInput
-          label="OG"
+          label={LL.brewday.yeastCalc.ogLabel()}
           value={og}
           onChange={(v) => setOg(v === '' ? '' : Number(v))}
           decimalScale={3}
           hideControls
         />
         <Select
-          label="Form"
+          label={LL.brewday.yeastCalc.formLabel()}
           value={form}
           onChange={(v) => setForm((v as YeastForm) ?? 'liquid')}
           allowDeselect={false}
           data={[
-            { value: 'liquid', label: 'Liquid' },
-            { value: 'dry', label: 'Dry' },
+            { value: 'liquid', label: LL.brewday.yeastCalc.liquid() },
+            { value: 'dry', label: LL.brewday.yeastCalc.dry() },
           ]}
         />
       </SimpleGrid>
 
       <Group justify="space-between" className={classes.summary}>
-        <StatTile label="Cells needed" value={`${needed}B`} accent />
-        <StatTile label="Packages" value={`${packages}×`} accent />
-        <StatTile label="Per package" value={`${perPackage}B`} />
+        <StatTile
+          label={LL.brewday.yeastCalc.cellsNeeded()}
+          value={`${needed}B`}
+          accent
+        />
+        <StatTile
+          label={LL.brewday.yeastCalc.packages()}
+          value={`${packages}×`}
+          accent
+        />
+        <StatTile
+          label={LL.brewday.yeastCalc.perPackage()}
+          value={`${perPackage}B`}
+        />
       </Group>
     </Stack>
   )

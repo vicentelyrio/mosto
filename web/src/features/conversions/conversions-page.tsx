@@ -1,5 +1,7 @@
 import { useState } from 'react'
 
+import { useI18nContext } from '@i18n/i18n-react'
+
 import { Tabs } from '@mantine/core'
 
 import { PageTemplate } from '@templates/page-template'
@@ -12,23 +14,32 @@ import { VolumeCalc } from './volume-calc'
 import { WaterCalc } from './water-calc'
 import { WeightCalc } from './weight-calc'
 
-const TABS = [
-  { value: 'gravity', label: 'Gravity', Panel: GravityCalc },
-  { value: 'temperature', label: 'Temperature', Panel: TemperatureCalc },
-  { value: 'volume', label: 'Volume', Panel: VolumeCalc },
-  { value: 'weight', label: 'Weight', Panel: WeightCalc },
-  { value: 'abv', label: 'ABV/ABW', Panel: AbvCalc },
-  { value: 'color', label: 'Color', Panel: ColorCalc },
-  { value: 'water', label: 'Water', Panel: WaterCalc },
-] as const
-
 export function ConversionsPage() {
+  const { LL } = useI18nContext()
   const [tab, setTab] = useState<string>('gravity')
+
+  const TABS = [
+    {
+      value: 'gravity',
+      label: LL.conversions.tabs.gravity(),
+      Panel: GravityCalc,
+    },
+    {
+      value: 'temperature',
+      label: LL.conversions.tabs.temperature(),
+      Panel: TemperatureCalc,
+    },
+    { value: 'volume', label: LL.conversions.tabs.volume(), Panel: VolumeCalc },
+    { value: 'weight', label: LL.conversions.tabs.weight(), Panel: WeightCalc },
+    { value: 'abv', label: LL.conversions.tabs.abv(), Panel: AbvCalc },
+    { value: 'color', label: LL.conversions.tabs.color(), Panel: ColorCalc },
+    { value: 'water', label: LL.conversions.tabs.water(), Panel: WaterCalc },
+  ] as const
 
   return (
     <PageTemplate
-      title="Conversions"
-      subtitle="Brewing calculators & unit converters"
+      title={LL.nav.conversions()}
+      subtitle={LL.conversions.subtitle()}
     >
       <Tabs value={tab} onChange={(v) => setTab(v ?? 'gravity')} mb="lg">
         <Tabs.List>

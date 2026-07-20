@@ -1,3 +1,4 @@
+import { useI18nContext } from '@i18n/i18n-react'
 import { paths } from '@infrastructure'
 import { useNavigate } from '@tanstack/react-router'
 
@@ -10,6 +11,7 @@ import { InventoryDrawerHeader } from './inventory-drawer-header'
 import { InventoryItemFormDrawer } from './inventory-item-form'
 
 export function InventoryItemEditDrawer({ id }: { id: string }) {
+  const { LL } = useI18nContext()
   const navigate = useNavigate()
   const { data: item, isLoading, isError } = useInventoryItem(id)
   const close = () => navigate({ to: paths.inventory })
@@ -35,14 +37,14 @@ export function InventoryItemEditDrawer({ id }: { id: string }) {
       ) : (
         <Box className={drawerClasses.wrapper}>
           <InventoryDrawerHeader
-            name="Item not found"
-            subtitle="It may have been deleted"
+            name={LL.inventory.itemNotFound.name()}
+            subtitle={LL.inventory.itemNotFound.subtitle()}
             color="gray"
             onClose={close}
           />
           <Box className={drawerClasses.body}>
             <Text c="dimmed" size="sm">
-              This item no longer exists, or the link is invalid.
+              {LL.inventory.itemNotFound.message()}
             </Text>
           </Box>
         </Box>

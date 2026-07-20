@@ -1,5 +1,8 @@
 import { useState } from 'react'
 
+import { useI18nContext } from '@i18n/i18n-react'
+import type { Locales } from '@i18n/i18n-types'
+import { loadLocaleAsync } from '@i18n/i18n-util.async'
 import { paths } from '@infrastructure'
 import {
   Link,
@@ -26,6 +29,8 @@ import {
   BookOpenTextIcon,
   CaretLeftIcon,
   CaretRightIcon,
+  CheckIcon,
+  GlobeIcon,
   PackageIcon,
   SquaresFourIcon,
   WrenchIcon,
@@ -38,23 +43,34 @@ import { BrewingSidebarWidget } from '@features/brewday'
 import classes from './app-template.module.css'
 import { BrewLogo } from './brew-logo'
 
-const NAV = [
-  { to: paths.dashboard, label: 'Dashboard', icon: SquaresFourIcon },
-  { to: paths.recipes, label: 'Recipes', icon: BookOpenTextIcon },
-  { to: paths.inventory, label: 'Inventory', icon: PackageIcon },
-  { to: paths.equipment, label: 'Equipment', icon: WrenchIcon },
-  { to: paths.conversions, label: 'Conversions', icon: ArrowsLeftRightIcon },
-] as const
-
 function initials(username: string) {
   return username.slice(0, 2).toUpperCase()
 }
 
+const LANGUAGES: { code: Locales; label: string }[] = [
+  { code: 'en', label: 'English' },
+  { code: 'pt-BR', label: 'Português' },
+  { code: 'es', label: 'Español' },
+]
+
 export function AppTemplate() {
+  const { LL, locale, setLocale } = useI18nContext()
   const pathname = useRouterState({ select: (s) => s.location.pathname })
   const navigate = useNavigate()
   const [collapsed, setCollapsed] = useState(false)
   const { me, signOut } = useAuth()
+
+  const NAV = [
+    { to: paths.dashboard, label: LL.nav.dashboard(), icon: SquaresFourIcon },
+    { to: paths.recipes, label: LL.nav.recipes(), icon: BookOpenTextIcon },
+    { to: paths.inventory, label: LL.nav.inventory(), icon: PackageIcon },
+    { to: paths.equipment, label: LL.nav.equipment(), icon: WrenchIcon },
+    {
+      to: paths.conversions,
+      label: LL.nav.conversions(),
+      icon: ArrowsLeftRightIcon,
+    },
+  ] as const
 
   const showAccount = !isTauri && me.data
   const justify = collapsed ? 'center' : 'flex-start'
@@ -63,6 +79,12 @@ export function AppTemplate() {
     signOut.mutate(undefined, {
       onSuccess: () => navigate({ to: paths.login }),
     })
+
+  const changeLocale = async (next: Locales) => {
+    await loadLocaleAsync(next)
+    setLocale(next)
+    localStorage.setItem('lang', next)
+  }
 
   return (
     <AppShell
@@ -130,7 +152,9 @@ export function AppTemplate() {
         <UnstyledButton
           className={classes.collapseToggle}
           onClick={() => setCollapsed((c) => !c)}
-          aria-label={collapsed ? 'Expand sidebar' : 'Collapse sidebar'}
+          aria-label={
+            collapsed ? LL.nav.expandSidebar() : LL.nav.collapseSidebar()
+          }
         >
           {collapsed ? (
             <CaretRightIcon size={14} weight="bold" />
@@ -174,8 +198,31 @@ export function AppTemplate() {
               </Menu.Target>
               <Menu.Dropdown>
                 <Menu.Label>{me.data?.username}</Menu.Label>
+                <Menu.Sub position="right-start" shadow="md">
+                  <Menu.Sub.Target>
+                    <Menu.Sub.Item leftSection={<GlobeIcon size={16} />}>
+                      {LL.nav.language()}
+                    </Menu.Sub.Item>
+                  </Menu.Sub.Target>
+                  <Menu.Sub.Dropdown>
+                    {LANGUAGES.map((lang) => (
+                      <Menu.Item
+                        key={lang.code}
+                        onClick={() => changeLocale(lang.code)}
+                        rightSection={
+                          locale === lang.code ? (
+                            <CheckIcon size={14} weight="bold" />
+                          ) : undefined
+                        }
+                      >
+                        {lang.label}
+                      </Menu.Item>
+                    ))}
+                  </Menu.Sub.Dropdown>
+                </Menu.Sub>
+                <Menu.Divider />
                 <Menu.Item color="red" onClick={handleSignOut}>
-                  Sign out
+                  {LL.nav.signOut()}
                 </Menu.Item>
               </Menu.Dropdown>
             </Menu>

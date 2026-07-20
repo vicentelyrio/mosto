@@ -1,3 +1,4 @@
+import { useI18nContext } from '@i18n/i18n-react'
 import { paths } from '@infrastructure'
 import { useNavigate } from '@tanstack/react-router'
 
@@ -10,6 +11,7 @@ import { EquipmentDrawerHeader } from './equipment-drawer-header'
 import { EquipmentFormDrawer } from './equipment-form'
 
 export function EquipmentEditDrawer({ id }: { id: string }) {
+  const { LL } = useI18nContext()
   const navigate = useNavigate()
   const { data: item, isLoading, isError } = useEquipmentItem(id)
   const close = () => navigate({ to: paths.equipment })
@@ -35,13 +37,13 @@ export function EquipmentEditDrawer({ id }: { id: string }) {
       ) : (
         <Box className={drawerClasses.wrapper}>
           <EquipmentDrawerHeader
-            name="Equipment not found"
-            type="It may have been deleted"
+            name={LL.equipment.notFound.name()}
+            type={LL.equipment.notFound.type()}
             onClose={close}
           />
           <Box className={drawerClasses.body}>
             <Text c="dimmed" size="sm">
-              This equipment no longer exists, or the link is invalid.
+              {LL.equipment.notFound.message()}
             </Text>
           </Box>
         </Box>

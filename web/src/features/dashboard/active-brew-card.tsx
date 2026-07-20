@@ -1,3 +1,4 @@
+import { useI18nContext } from '@i18n/i18n-react'
 import { paths } from '@infrastructure'
 import { useNavigate } from '@tanstack/react-router'
 
@@ -28,6 +29,7 @@ export function ActiveBrewCard({
   session: BrewSession
   recipe: Recipe
 }) {
+  const { LL } = useI18nContext()
   const navigate = useNavigate()
   const { readings } = useGravityLog(session.id)
   const latest = readings.at(-1)
@@ -45,15 +47,22 @@ export function ActiveBrewCard({
       <Stack gap="md" className={classes.content}>
         <Group justify="space-between" align="flex-start" wrap="nowrap">
           <Box>
-            <Text className={classes.eyebrow}>Active Brew</Text>
+            <Text className={classes.eyebrow}>
+              {LL.dashboard.stats.activeBrew()}
+            </Text>
             <Text fw={700} size="xl">
               {recipe.name}
             </Text>
             <Text size="sm" c="dimmed">
               {recipe.style}
               {day !== null
-                ? ` · Day ${day} of ${session.status}`
-                : ` · ${session.status}`}
+                ? LL.dashboard.activeBrewCard.dayOfStatus({
+                    day,
+                    status: session.status,
+                  })
+                : LL.dashboard.activeBrewCard.statusOnly({
+                    status: session.status,
+                  })}
             </Text>
           </Box>
           <Button
@@ -61,14 +70,14 @@ export function ActiveBrewCard({
               navigate({ to: paths.recipeBrewing, params: { id: recipe.id } })
             }
           >
-            Open →
+            {LL.dashboard.activeBrewCard.open()}
           </Button>
         </Group>
 
         <Box>
           <Group justify="space-between" mb={4}>
             <Text size="xs" c="dimmed">
-              Fermentation progress
+              {LL.dashboard.activeBrewCard.fermentationProgress()}
             </Text>
             <Text size="xs" c="amber" fw={600}>
               {pct}%
@@ -80,10 +89,16 @@ export function ActiveBrewCard({
         <SimpleGrid cols={4}>
           {(
             [
-              ['OG', recipe.og.toFixed(3)],
-              ['Current', latest ? latest.sg.toFixed(3) : '—'],
-              ['Target FG', recipe.fg.toFixed(3)],
-              ['Temp', latest?.temp != null ? `${latest.temp}°F` : '—'],
+              [LL.dashboard.activeBrewCard.og(), recipe.og.toFixed(3)],
+              [
+                LL.dashboard.activeBrewCard.current(),
+                latest ? latest.sg.toFixed(3) : '—',
+              ],
+              [LL.dashboard.activeBrewCard.targetFg(), recipe.fg.toFixed(3)],
+              [
+                LL.dashboard.activeBrewCard.temp(),
+                latest?.temp != null ? `${latest.temp}°F` : '—',
+              ],
             ] as const
           ).map(([label, value]) => (
             <Box key={label}>

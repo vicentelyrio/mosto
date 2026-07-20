@@ -1,3 +1,5 @@
+import { useI18nContext } from '@i18n/i18n-react'
+
 import { Badge, Button, Group, Paper, Stack, Text } from '@mantine/core'
 
 import type { SessionStatus } from '@domain'
@@ -15,6 +17,7 @@ export function CompletionCard({
   onLogGravity: () => void
   onMarkFermenting: () => void
 }) {
+  const { LL } = useI18nContext()
   return (
     <Paper
       withBorder
@@ -30,20 +33,21 @@ export function CompletionCard({
           tt="uppercase"
           style={{ letterSpacing: '0.08em' }}
         >
-          Brew Day Complete
+          {LL.brewday.completion.title()}
         </Text>
         <Text fw={800} size="xl">
-          All {stepCount} steps done
+          {LL.brewday.completion.allStepsDone({ count: stepCount })}
         </Text>
         <Text size="sm" c="dimmed">
-          {recipeName} is in the fermentor. Log your OG and track gravity from
-          here.
+          {LL.brewday.completion.inFermentor({ name: recipeName })}
         </Text>
         <Group gap="sm" mt="sm">
-          <Button onClick={onLogGravity}>Log gravity →</Button>
+          <Button onClick={onLogGravity}>
+            {LL.brewday.completion.logGravity()}
+          </Button>
           {status === 'brewing' ? (
             <Button variant="default" onClick={onMarkFermenting}>
-              Mark Fermenting
+              {LL.brewday.completion.markFermenting()}
             </Button>
           ) : (
             <Badge color="amber" variant="light" size="lg">

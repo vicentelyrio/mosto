@@ -1,5 +1,6 @@
 import { useRef, useState } from 'react'
 
+import { useI18nContext } from '@i18n/i18n-react'
 import { paths } from '@infrastructure'
 import { useNavigate } from '@tanstack/react-router'
 
@@ -38,6 +39,7 @@ const SORTS = {
 type SortKey = keyof typeof SORTS
 
 export function RecipeList() {
+  const { LL } = useI18nContext()
   const navigate = useNavigate()
   const { recipes, query, create } = useRecipes()
   const fileInput = useRef<HTMLInputElement>(null)
@@ -61,14 +63,12 @@ export function RecipeList() {
           setImportError(
             err instanceof ApiError
               ? err.message
-              : 'Could not import that recipe',
+              : LL.recipes.list.importGenericError(),
           ),
       })
     } catch (err) {
       setImportError(
-        err instanceof ApiError
-          ? err.message
-          : 'Could not read that BeerXML file',
+        err instanceof ApiError ? err.message : LL.recipes.list.readError(),
       )
     }
   }
@@ -86,24 +86,24 @@ export function RecipeList() {
 
   return (
     <PageTemplate
-      title="Recipes"
-      subtitle={`${recipes.length} all-grain recipes`}
+      title={LL.recipes.list.title()}
+      subtitle={LL.recipes.list.subtitle({ count: recipes.length })}
       actions={
         <Menu position="bottom-end">
           <Menu.Target>
             <Button rightSection={<CaretDownIcon size={14} weight="bold" />}>
-              + New Recipe
+              {LL.recipes.list.newRecipeCta()}
             </Button>
           </Menu.Target>
           <Menu.Dropdown>
             <Menu.Item onClick={() => navigate({ to: paths.newRecipe })}>
-              New Recipe
+              {LL.recipes.newRecipe()}
             </Menu.Item>
             <Menu.Item
               leftSection={<UploadSimpleIcon size={16} />}
               onClick={pickFile}
             >
-              Import BeerXML
+              {LL.recipes.list.importBeerXml()}
             </Menu.Item>
           </Menu.Dropdown>
         </Menu>
@@ -120,7 +120,7 @@ export function RecipeList() {
       <Group mb="lg" wrap="wrap">
         <TextInput
           className={classes.search}
-          placeholder="Search recipes…"
+          placeholder={LL.recipes.list.searchPlaceholder()}
           value={search}
           onChange={(e) => setSearch(e.currentTarget.value)}
         />
@@ -129,23 +129,23 @@ export function RecipeList() {
           onChange={(value) => setSort((value as SortKey) ?? 'name')}
           allowDeselect={false}
           data={[
-            { value: 'name', label: 'Sort: Name' },
-            { value: 'recent', label: 'Sort: Recent' },
-            { value: 'abv', label: 'Sort: ABV' },
-            { value: 'ibu', label: 'Sort: IBU' },
+            { value: 'name', label: LL.recipes.list.sort.name() },
+            { value: 'recent', label: LL.recipes.list.sort.recent() },
+            { value: 'abv', label: LL.recipes.list.sort.abv() },
+            { value: 'ibu', label: LL.recipes.list.sort.ibu() },
           ]}
         />
       </Group>
 
       {importError && (
-        <Alert color="red" title="Import failed" mb="md">
+        <Alert color="red" title={LL.recipes.list.importFailed()} mb="md">
           {importError}
         </Alert>
       )}
 
       {query.isError ? (
-        <Alert color="red" title="Couldn't load recipes">
-          Something went wrong fetching your recipes. Try refreshing the page.
+        <Alert color="red" title={LL.recipes.list.loadError.title()}>
+          {LL.recipes.list.loadError.message()}
         </Alert>
       ) : query.isLoading ? (
         <CardGrid>
@@ -156,8 +156,8 @@ export function RecipeList() {
       ) : filtered.length === 0 ? (
         <Text c="dimmed" ta="center" py="xl">
           {recipes.length === 0
-            ? 'No recipes yet — create one to get started.'
-            : 'No recipes match your search.'}
+            ? LL.recipes.list.empty()
+            : LL.recipes.list.emptySearch()}
         </Text>
       ) : (
         <CardGrid>

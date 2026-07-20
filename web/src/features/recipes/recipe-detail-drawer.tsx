@@ -1,5 +1,7 @@
 import { useEffect, useState } from 'react'
 
+import { useI18nContext } from '@i18n/i18n-react'
+import type { TranslationFunctions } from '@i18n/i18n-types'
 import { paths } from '@infrastructure'
 import { useNavigate } from '@tanstack/react-router'
 
@@ -41,24 +43,30 @@ function StatPill({ label, value }: { label: string; value: string | number }) {
   )
 }
 
-function OverviewTab({ recipe }: { recipe: Recipe }) {
+function OverviewTab({
+  LL,
+  recipe,
+}: {
+  LL: TranslationFunctions
+  recipe: Recipe
+}) {
   const step = recipe.mash?.steps[0]
   const yeast = recipe.yeasts[0]
 
   const process = [
-    ['Mash Temp', step ? `${step.step_temp}°F` : '—'],
-    ['Mash Time', step ? `${step.step_time} min` : '—'],
-    ['Boil Time', `${recipe.boil_time} min`],
-    ['Yeast', yeast?.form ?? '—'],
-    ['Ferm Temp', yeast?.temp_range ?? '—'],
-    ['Attenuation', yeast ? `${yeast.attenuation}%` : '—'],
+    [LL.recipes.detail.mashTemp(), step ? `${step.step_temp}°F` : '—'],
+    [LL.recipes.detail.mashTime(), step ? `${step.step_time} min` : '—'],
+    [LL.recipes.detail.boilTime(), `${recipe.boil_time} min`],
+    [LL.recipes.detail.yeast(), yeast?.form ?? '—'],
+    [LL.recipes.detail.fermTemp(), yeast?.temp_range ?? '—'],
+    [LL.recipes.detail.attenuation(), yeast ? `${yeast.attenuation}%` : '—'],
   ] as const
 
   return (
     <Stack gap="lg">
       <Box>
         <Text size="xs" fw={600} c="dimmed" tt="uppercase" mb="sm">
-          Process
+          {LL.recipes.detail.process()}
         </Text>
         <SimpleGrid cols={2} spacing="xs">
           {process.map(([label, value]) => (
@@ -75,7 +83,7 @@ function OverviewTab({ recipe }: { recipe: Recipe }) {
       {yeast && (
         <Box className={classes.processCard}>
           <Text size="xs" c="dimmed">
-            Yeast Strain
+            {LL.recipes.detail.yeastStrain()}
           </Text>
           <Text fw={600}>{yeast.name}</Text>
         </Box>
@@ -84,13 +92,21 @@ function OverviewTab({ recipe }: { recipe: Recipe }) {
   )
 }
 
-function GrainsTab({ recipe, factor }: { recipe: Recipe; factor: number }) {
+function GrainsTab({
+  LL,
+  recipe,
+  factor,
+}: {
+  LL: TranslationFunctions
+  recipe: Recipe
+  factor: number
+}) {
   const total = recipe.grains.reduce((sum, g) => sum + g.amount, 0)
 
   if (recipe.grains.length === 0) {
     return (
       <Text c="dimmed" size="sm">
-        No grains recorded.
+        {LL.recipes.detail.noGrains()}
       </Text>
     )
   }
@@ -98,7 +114,7 @@ function GrainsTab({ recipe, factor }: { recipe: Recipe; factor: number }) {
   return (
     <Stack gap="md">
       <Text size="xs" fw={600} c="dimmed">
-        Grain bill — {total.toFixed(1)} lb total
+        {LL.recipes.detail.grainBill({ total: total.toFixed(1) })}
       </Text>
       {recipe.grains.map((g) => (
         <Box key={g.name}>
@@ -118,11 +134,19 @@ function GrainsTab({ recipe, factor }: { recipe: Recipe; factor: number }) {
   )
 }
 
-function HopsTab({ recipe, factor }: { recipe: Recipe; factor: number }) {
+function HopsTab({
+  LL,
+  recipe,
+  factor,
+}: {
+  LL: TranslationFunctions
+  recipe: Recipe
+  factor: number
+}) {
   if (recipe.hops.length === 0) {
     return (
       <Text c="dimmed" size="sm">
-        No hops recorded.
+        {LL.recipes.detail.noHops()}
       </Text>
     )
   }
@@ -130,7 +154,7 @@ function HopsTab({ recipe, factor }: { recipe: Recipe; factor: number }) {
   return (
     <Stack gap="xs">
       <Text size="xs" fw={600} c="dimmed" mb="xs">
-        Hop schedule
+        {LL.recipes.detail.hopSchedule()}
       </Text>
       {recipe.hops.map((h, i) => (
         // biome-ignore lint/suspicious/noArrayIndexKey: hop names repeat across additions
@@ -140,7 +164,7 @@ function HopsTab({ recipe, factor }: { recipe: Recipe; factor: number }) {
               {h.time}
             </Text>
             <Text size="xs" c="dimmed">
-              min
+              {LL.recipes.detail.min()}
             </Text>
           </Box>
           <Box flex={1}>
@@ -148,7 +172,7 @@ function HopsTab({ recipe, factor }: { recipe: Recipe; factor: number }) {
               {h.name}
             </Text>
             <Text size="xs" c="dimmed">
-              {h.use} · {h.alpha}% AA
+              {LL.recipes.detail.hopUseAlpha({ use: h.use, alpha: h.alpha })}
             </Text>
           </Box>
           <Text fw={700}>{(h.amount * factor).toFixed(2)} oz</Text>
@@ -158,11 +182,19 @@ function HopsTab({ recipe, factor }: { recipe: Recipe; factor: number }) {
   )
 }
 
-function WaterTab({ recipe, factor }: { recipe: Recipe; factor: number }) {
+function WaterTab({
+  LL,
+  recipe,
+  factor,
+}: {
+  LL: TranslationFunctions
+  recipe: Recipe
+  factor: number
+}) {
   if (!recipe.water) {
     return (
       <Text c="dimmed" size="sm">
-        No water profile recorded.
+        {LL.recipes.detail.noWater()}
       </Text>
     )
   }
@@ -181,7 +213,7 @@ function WaterTab({ recipe, factor }: { recipe: Recipe; factor: number }) {
     <Stack gap="md">
       <Box className={classes.processCard}>
         <Text size="xs" fw={600} c="dimmed" mb="sm">
-          Water profile
+          {LL.recipes.detail.waterProfile()}
         </Text>
         <SimpleGrid cols={3} spacing="xs">
           {minerals.map(([label, value]) => (
@@ -196,7 +228,7 @@ function WaterTab({ recipe, factor }: { recipe: Recipe; factor: number }) {
       </Box>
       <Group justify="space-between" className={classes.processCard}>
         <Text size="sm" c="dimmed">
-          Strike Water
+          {LL.recipes.detail.strikeWater()}
         </Text>
         <Text fw={600}>{(w.volume * factor).toFixed(1)} gal</Text>
       </Group>
@@ -205,6 +237,7 @@ function WaterTab({ recipe, factor }: { recipe: Recipe; factor: number }) {
 }
 
 function ViewMode({ recipe }: { recipe: Recipe }) {
+  const { LL } = useI18nContext()
   const navigate = useNavigate()
   const [tab, setTab] = useState<string | null>('overview')
   const [scale, setScale] = useState(recipe.batch_size)
@@ -222,12 +255,15 @@ function ViewMode({ recipe }: { recipe: Recipe }) {
     <Box className={drawerClasses.wrapper}>
       <RecipeDrawerHeader
         name={recipe.name}
-        subtitle={`${recipe.style} · BJCP ${recipe.bjcp_code}`}
+        subtitle={LL.recipes.styleBjcp({
+          style: recipe.style,
+          code: recipe.bjcp_code,
+        })}
         srm={recipe.srm}
         badge={
           isBrewing && (
             <Badge color="amber" variant="light">
-              Brewing
+              {LL.recipes.brewingBadge()}
             </Badge>
           )
         }
@@ -236,28 +272,41 @@ function ViewMode({ recipe }: { recipe: Recipe }) {
 
       <Box className={drawerClasses.body}>
         <Group gap="xs" mb="md">
-          <StatPill label="ABV" value={`${recipe.abv}%`} />
-          <StatPill label="IBU" value={recipe.ibu} />
-          <StatPill label="OG" value={recipe.og.toFixed(3)} />
-          <StatPill label="FG" value={recipe.fg.toFixed(3)} />
-          <StatPill label="SRM" value={recipe.srm} />
-          <StatPill label="EFF" value={`${recipe.efficiency}%`} />
+          <StatPill label={LL.recipes.stats.abv()} value={`${recipe.abv}%`} />
+          <StatPill label={LL.recipes.stats.ibu()} value={recipe.ibu} />
+          <StatPill
+            label={LL.recipes.stats.og()}
+            value={recipe.og.toFixed(3)}
+          />
+          <StatPill
+            label={LL.recipes.stats.fg()}
+            value={recipe.fg.toFixed(3)}
+          />
+          <StatPill label={LL.recipes.stats.srm()} value={recipe.srm} />
+          <StatPill
+            label={LL.recipes.stats.eff()}
+            value={`${recipe.efficiency}%`}
+          />
         </Group>
 
         <Tabs value={tab} onChange={setTab}>
           <Tabs.List>
-            <Tabs.Tab value="overview">Overview</Tabs.Tab>
-            <Tabs.Tab value="grains">Grains</Tabs.Tab>
-            <Tabs.Tab value="hops">Hops</Tabs.Tab>
-            <Tabs.Tab value="water">Water</Tabs.Tab>
-            <Tabs.Tab value="notes">Notes</Tabs.Tab>
+            <Tabs.Tab value="overview">
+              {LL.recipes.detail.tabs.overview()}
+            </Tabs.Tab>
+            <Tabs.Tab value="grains">
+              {LL.recipes.detail.tabs.grains()}
+            </Tabs.Tab>
+            <Tabs.Tab value="hops">{LL.recipes.detail.tabs.hops()}</Tabs.Tab>
+            <Tabs.Tab value="water">{LL.recipes.detail.tabs.water()}</Tabs.Tab>
+            <Tabs.Tab value="notes">{LL.recipes.detail.tabs.notes()}</Tabs.Tab>
           </Tabs.List>
 
           <Tabs.Panel value="overview" pt="md">
             <Stack gap="lg">
               <Box className={classes.processCard}>
                 <Text size="xs" fw={600} c="dimmed" mb="sm">
-                  Scale Batch
+                  {LL.recipes.detail.scaleBatch()}
                 </Text>
                 <Group gap="sm" wrap="nowrap">
                   <Slider
@@ -270,34 +319,36 @@ function ViewMode({ recipe }: { recipe: Recipe }) {
                     label={null}
                   />
                   <Text fw={700} c="amber" className={classes.scaleValue}>
-                    {scale} gal
+                    {LL.recipes.batchSize({ size: scale })}
                   </Text>
                 </Group>
                 {factor !== 1 && (
                   <Text size="xs" c="dimmed" mt="xs">
-                    ×{factor.toFixed(2)} of original recipe
+                    {LL.recipes.detail.scaleFactor({
+                      factor: factor.toFixed(2),
+                    })}
                   </Text>
                 )}
               </Box>
-              <OverviewTab recipe={recipe} />
+              <OverviewTab LL={LL} recipe={recipe} />
             </Stack>
           </Tabs.Panel>
 
           <Tabs.Panel value="grains" pt="md">
-            <GrainsTab recipe={recipe} factor={factor} />
+            <GrainsTab LL={LL} recipe={recipe} factor={factor} />
           </Tabs.Panel>
 
           <Tabs.Panel value="hops" pt="md">
-            <HopsTab recipe={recipe} factor={factor} />
+            <HopsTab LL={LL} recipe={recipe} factor={factor} />
           </Tabs.Panel>
 
           <Tabs.Panel value="water" pt="md">
-            <WaterTab recipe={recipe} factor={factor} />
+            <WaterTab LL={LL} recipe={recipe} factor={factor} />
           </Tabs.Panel>
 
           <Tabs.Panel value="notes" pt="md">
             <Text size="sm" className={classes.processCard}>
-              {recipe.notes || 'No notes recorded.'}
+              {recipe.notes || LL.recipes.detail.noNotes()}
             </Text>
           </Tabs.Panel>
         </Tabs>
@@ -305,7 +356,10 @@ function ViewMode({ recipe }: { recipe: Recipe }) {
 
       <Group className={drawerClasses.footer} wrap="nowrap">
         <Button flex={1} onClick={startBrewing}>
-          {isBrewing ? 'Resume Brewing →' : 'Start Brewing →'}
+          {isBrewing
+            ? LL.recipes.actions.resumeBrewing()
+            : LL.recipes.actions.startBrewing()}{' '}
+          →
         </Button>
         <RecipeActionsMenu recipe={recipe} onDeleted={close} />
       </Group>
@@ -320,6 +374,7 @@ export function RecipeDetailDrawer({
   id: string
   editing: boolean
 }) {
+  const { LL } = useI18nContext()
   const navigate = useNavigate()
   const { data: recipe, isLoading, isError } = useRecipe(id)
   const close = () => navigate({ to: paths.recipes })
@@ -346,14 +401,14 @@ export function RecipeDetailDrawer({
       ) : isError || !recipe ? (
         <Box className={drawerClasses.wrapper}>
           <RecipeDrawerHeader
-            name="Recipe not found"
-            subtitle="It may have been deleted"
+            name={LL.recipes.notFound.name()}
+            subtitle={LL.recipes.notFound.subtitle()}
             srm={0}
             onClose={close}
           />
           <Box className={drawerClasses.body}>
             <Text c="dimmed" size="sm">
-              This recipe no longer exists, or the link is invalid.
+              {LL.recipes.notFound.message()}
             </Text>
           </Box>
         </Box>

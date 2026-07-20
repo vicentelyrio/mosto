@@ -39,9 +39,3 @@ export const CONDITION_COLOR: Record<Condition, string> = {
   fair: 'orange',
   poor: 'red',
 }
-
-export const CONDITION_LABEL: Record<Condition, string> = {
-  good: 'Good',
-  fair: 'Fair',
-  poor: 'Poor',
-}

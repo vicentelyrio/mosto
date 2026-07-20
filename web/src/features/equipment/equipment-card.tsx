@@ -1,3 +1,5 @@
+import { useI18nContext } from '@i18n/i18n-react'
+
 import { Badge, Box, Group, Stack, Text } from '@mantine/core'
 
 import type { Equipment } from '@domain'
@@ -6,7 +8,6 @@ import { EquipmentActionsMenu } from './equipment-actions-menu'
 import classes from './equipment-card.module.css'
 import {
   CONDITION_COLOR,
-  CONDITION_LABEL,
   DEFAULT_TYPE_ICON,
   TYPE_ICONS,
 } from './equipment-meta'
@@ -18,6 +19,7 @@ export function EquipmentCard({
   item: Equipment
   onEdit: (item: Equipment) => void
 }) {
+  const { LL } = useI18nContext()
   const TypeIcon = TYPE_ICONS[item.type] ?? DEFAULT_TYPE_ICON
 
   return (
@@ -52,7 +54,7 @@ export function EquipmentCard({
             )}
           </Group>
           <Badge color={CONDITION_COLOR[item.condition]} variant="light">
-            {CONDITION_LABEL[item.condition]}
+            {LL.equipment.condition[item.condition]()}
           </Badge>
         </Group>
 

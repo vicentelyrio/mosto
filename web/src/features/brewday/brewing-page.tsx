@@ -1,5 +1,6 @@
 import { useMemo, useState } from 'react'
 
+import { useI18nContext } from '@i18n/i18n-react'
 import { paths } from '@infrastructure'
 import { useNavigate } from '@tanstack/react-router'
 
@@ -50,6 +51,7 @@ import { useTimer } from './use-timer'
 import { YeastCalcPanel } from './yeast-calc-panel'
 
 export function BrewingPage({ recipeId }: { recipeId: string }) {
+  const { LL } = useI18nContext()
   const navigate = useNavigate()
   const { data: recipe, isLoading, isError } = useRecipe(recipeId)
   const {
@@ -69,7 +71,10 @@ export function BrewingPage({ recipeId }: { recipeId: string }) {
   const { update: updateStatus } = useSessionStatus(session)
   const { completedSteps, toggle } = useStepCompletions(session?.id)
 
-  const steps = useMemo(() => (recipe ? generateSteps(recipe) : []), [recipe])
+  const steps = useMemo(
+    () => (recipe ? generateSteps(LL, recipe) : []),
+    [recipe, LL],
+  )
   const donePct =
     steps.length === 0
       ? 0
@@ -126,15 +131,18 @@ export function BrewingPage({ recipeId }: { recipeId: string }) {
   const confirmCancel = () => {
     if (!recipe) return
     modals.openConfirmModal({
-      title: 'Cancel batch',
+      title: LL.brewday.page.cancelConfirm.title(),
       children: (
         <Text size="sm">
-          Cancel brewing <strong>{recipe.name}</strong>? This archives the
-          session — logged steps and gravity readings are kept, but it moves out
-          of your active brews.
+          {LL.brewday.page.cancelConfirm.messagePrefix()}{' '}
+          <strong>{recipe.name}</strong>
+          {LL.brewday.page.cancelConfirm.messageSuffix()}
         </Text>
       ),
-      labels: { confirm: 'Cancel Batch', cancel: 'Keep Brewing' },
+      labels: {
+        confirm: LL.brewday.page.cancelBatch(),
+        cancel: LL.brewday.page.cancelConfirm.keepBrewing(),
+      },
       confirmProps: { color: 'red' },
       onConfirm: () => updateStatus.mutate('archived'),
     })
@@ -143,15 +151,15 @@ export function BrewingPage({ recipeId }: { recipeId: string }) {
   const confirmDelete = () => {
     if (!recipe || !session) return
     modals.openConfirmModal({
-      title: 'Delete batch',
+      title: LL.brewday.page.deleteConfirm.title(),
       children: (
         <Text size="sm">
-          Permanently delete this brew session for{' '}
-          <strong>{recipe.name}</strong>? All logged steps and gravity readings
-          will be lost. This can't be undone.
+          {LL.brewday.page.deleteConfirm.messagePrefix()}{' '}
+          <strong>{recipe.name}</strong>
+          {LL.brewday.page.deleteConfirm.messageSuffix()}
         </Text>
       ),
-      labels: { confirm: 'Delete', cancel: 'Cancel' },
+      labels: { confirm: LL.common.delete(), cancel: LL.common.cancel() },
       confirmProps: { color: 'red' },
       onConfirm: () => removeSession.mutate(session.id),
     })
@@ -170,8 +178,8 @@ export function BrewingPage({ recipeId }: { recipeId: string }) {
   if (isError || !recipe) {
     return (
       <Container size="lg" px={{ base: 'md', sm: 'xl' }} py="xl">
-        <Alert color="red" title="Recipe not found">
-          This recipe no longer exists, or the link is invalid.
+        <Alert color="red" title={LL.brewday.page.notFound.title()}>
+          {LL.brewday.page.notFound.message()}
         </Alert>
       </Container>
     )
@@ -185,7 +193,7 @@ export function BrewingPage({ recipeId }: { recipeId: string }) {
         mb="md"
       >
         <ArrowLeftIcon size={14} weight="bold" />
-        <Text size="sm">Back to {recipe.name}</Text>
+        <Text size="sm">{LL.brewday.page.backTo({ name: recipe.name })}</Text>
       </UnstyledButton>
 
       <Group align="flex-start" wrap="wrap" mb="lg" gap="lg">
@@ -201,7 +209,11 @@ export function BrewingPage({ recipeId }: { recipeId: string }) {
               )}
             </Group>
             <Text c="dimmed">
-              {recipe.style} · BJCP {recipe.bjcp_code} · {recipe.batch_size} gal
+              {LL.brewday.page.styleBjcpBatch({
+                style: recipe.style,
+                code: recipe.bjcp_code,
+                size: recipe.batch_size,
+              })}
             </Text>
           </Stack>
         </Group>
@@ -213,7 +225,10 @@ export function BrewingPage({ recipeId }: { recipeId: string }) {
                 {donePct}%
               </Text>
               <Text size="xs" c="dimmed">
-                {completedSteps.length}/{steps.length} steps done
+                {LL.brewday.page.stepsDone({
+                  completed: completedSteps.length,
+                  total: steps.length,
+                })}
               </Text>
             </Box>
             <Menu position="bottom-end" withinPortal>
@@ -221,7 +236,7 @@ export function BrewingPage({ recipeId }: { recipeId: string }) {
                 <ActionIcon
                   variant="default"
                   color="gray"
-                  aria-label="Batch actions"
+                  aria-label={LL.brewday.page.batchActionsLabel()}
                 >
                   <DotsThreeVerticalIcon size={18} weight="bold" />
                 </ActionIcon>
@@ -232,14 +247,14 @@ export function BrewingPage({ recipeId }: { recipeId: string }) {
                   leftSection={<XCircleIcon size={16} />}
                   onClick={confirmCancel}
                 >
-                  Cancel Batch
+                  {LL.brewday.page.cancelBatch()}
                 </Menu.Item>
                 <Menu.Item
                   color="red"
                   leftSection={<TrashIcon size={16} />}
                   onClick={confirmDelete}
                 >
-                  Delete Batch
+                  {LL.brewday.page.deleteBatch()}
                 </Menu.Item>
               </Menu.Dropdown>
             </Menu>
@@ -250,7 +265,8 @@ export function BrewingPage({ recipeId }: { recipeId: string }) {
       {!session ? (
         <Stack align="flex-start" gap="md">
           <Text c="dimmed">
-            No brew session yet for <strong>{recipe.name}</strong>.
+            {LL.brewday.page.noSessionPrefix()} <strong>{recipe.name}</strong>
+            {LL.brewday.page.noSessionSuffix()}
           </Text>
           <Button
             loading={createSession.isPending}
@@ -262,7 +278,7 @@ export function BrewingPage({ recipeId }: { recipeId: string }) {
               })
             }
           >
-            Start Brewing
+            {LL.brewday.page.startBrewing()}
           </Button>
         </Stack>
       ) : (
@@ -273,10 +289,12 @@ export function BrewingPage({ recipeId }: { recipeId: string }) {
           classNames={{ tab: classes.tab }}
         >
           <Tabs.List mb="lg">
-            <Tabs.Tab value="steps">Batch</Tabs.Tab>
-            <Tabs.Tab value="gravity">Gravity Log</Tabs.Tab>
-            <Tabs.Tab value="yeast">Yeast Calc</Tabs.Tab>
-            <Tabs.Tab value="hops">Hop Schedule</Tabs.Tab>
+            <Tabs.Tab value="steps">{LL.brewday.page.tabs.batch()}</Tabs.Tab>
+            <Tabs.Tab value="gravity">
+              {LL.brewday.page.tabs.gravity()}
+            </Tabs.Tab>
+            <Tabs.Tab value="yeast">{LL.brewday.page.tabs.yeast()}</Tabs.Tab>
+            <Tabs.Tab value="hops">{LL.brewday.page.tabs.hops()}</Tabs.Tab>
           </Tabs.List>
 
           <Tabs.Panel value="steps">

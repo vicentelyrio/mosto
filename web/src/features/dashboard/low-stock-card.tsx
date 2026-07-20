@@ -1,3 +1,5 @@
+import { useI18nContext } from '@i18n/i18n-react'
+
 import { Box, Group, Stack, Text } from '@mantine/core'
 
 import type { InventoryItem } from '@domain'
@@ -7,12 +9,13 @@ import { itemStatus, STATUS_COLOR } from '@features/inventory'
 import classes from './low-stock-card.module.css'
 
 export function LowStockCard({ items }: { items: InventoryItem[] }) {
+  const { LL } = useI18nContext()
   if (items.length === 0) return null
 
   return (
     <Box className={classes.card}>
       <Text className={classes.title} mb="sm">
-        Low Stock
+        {LL.dashboard.lowStock.title()}
       </Text>
       <Stack gap={0}>
         {items.slice(0, 5).map((item) => (

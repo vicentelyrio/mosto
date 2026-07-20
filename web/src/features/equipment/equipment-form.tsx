@@ -1,5 +1,7 @@
 import { useState } from 'react'
 
+import { useI18nContext } from '@i18n/i18n-react'
+
 import {
   Alert,
   Box,
@@ -71,6 +73,7 @@ type EquipmentFormDrawerProps =
   | { mode: 'edit'; item: Equipment; onClose: () => void }
 
 export function EquipmentFormDrawer(props: EquipmentFormDrawerProps) {
+  const { LL } = useI18nContext()
   const { create, update } = useEquipment()
   const [submitError, setSubmitError] = useState<string | null>(null)
 
@@ -78,13 +81,13 @@ export function EquipmentFormDrawer(props: EquipmentFormDrawerProps) {
     initialValues:
       props.mode === 'edit' ? valuesFromItem(props.item) : EMPTY_VALUES,
     validate: {
-      name: (v) => (v.trim() ? null : 'Required'),
+      name: (v) => (v.trim() ? null : LL.common.required()),
     },
   })
 
   const onError = (err: unknown) =>
     setSubmitError(
-      err instanceof ApiError ? err.message : 'Could not save this equipment',
+      err instanceof ApiError ? err.message : LL.equipment.saveError.generic(),
     )
 
   const submit = form.onSubmit((values) => {
@@ -114,7 +117,7 @@ export function EquipmentFormDrawer(props: EquipmentFormDrawerProps) {
     >
       <Box className={drawerClasses.wrapper}>
         <EquipmentDrawerHeader
-          name={form.values.name || 'New Equipment'}
+          name={form.values.name || LL.equipment.newEquipment()}
           type={form.values.type}
           onClose={props.onClose}
         />
@@ -123,30 +126,30 @@ export function EquipmentFormDrawer(props: EquipmentFormDrawerProps) {
           <Box className={drawerClasses.body}>
             <Stack gap="md">
               {submitError && (
-                <Alert color="red" title="Couldn't save">
+                <Alert color="red" title={LL.equipment.saveError.title()}>
                   {submitError}
                 </Alert>
               )}
 
               <TextInput
-                label="Name"
+                label={LL.equipment.form.nameLabel()}
                 required
                 {...form.getInputProps('name')}
               />
 
               <SimpleGrid cols={2}>
                 <Select
-                  label="Type"
+                  label={LL.equipment.form.typeLabel()}
                   data={[...TYPES]}
                   allowDeselect={false}
                   {...form.getInputProps('type')}
                 />
                 <Select
-                  label="Condition"
+                  label={LL.equipment.form.conditionLabel()}
                   data={[
-                    { value: 'good', label: 'Good' },
-                    { value: 'fair', label: 'Fair' },
-                    { value: 'poor', label: 'Poor' },
+                    { value: 'good', label: LL.equipment.condition.good() },
+                    { value: 'fair', label: LL.equipment.condition.fair() },
+                    { value: 'poor', label: LL.equipment.condition.poor() },
                   ]}
                   allowDeselect={false}
                   {...form.getInputProps('condition')}
@@ -155,19 +158,19 @@ export function EquipmentFormDrawer(props: EquipmentFormDrawerProps) {
 
               <SimpleGrid cols={2}>
                 <TextInput
-                  label="Capacity"
-                  placeholder="e.g. 10 gal"
+                  label={LL.equipment.form.capacityLabel()}
+                  placeholder={LL.equipment.form.capacityPlaceholder()}
                   {...form.getInputProps('capacity')}
                 />
                 <TextInput
-                  label="Material"
-                  placeholder="e.g. Stainless Steel"
+                  label={LL.equipment.form.materialLabel()}
+                  placeholder={LL.equipment.form.materialPlaceholder()}
                   {...form.getInputProps('material')}
                 />
               </SimpleGrid>
 
               <Textarea
-                label="Notes"
+                label={LL.equipment.form.notesLabel()}
                 minRows={3}
                 {...form.getInputProps('notes')}
               />
@@ -176,10 +179,12 @@ export function EquipmentFormDrawer(props: EquipmentFormDrawerProps) {
 
           <Group className={drawerClasses.footer} justify="flex-end">
             <Button variant="subtle" onClick={props.onClose} type="button">
-              Cancel
+              {LL.common.cancel()}
             </Button>
             <Button type="submit" loading={pending}>
-              {props.mode === 'edit' ? 'Save changes' : 'Add equipment'}
+              {props.mode === 'edit'
+                ? LL.equipment.form.saveChanges()
+                : LL.equipment.form.addEquipment()}
             </Button>
           </Group>
         </form>

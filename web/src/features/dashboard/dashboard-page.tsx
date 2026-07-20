@@ -1,3 +1,4 @@
+import { useI18nContext } from '@i18n/i18n-react'
 import dayjs from 'dayjs'
 
 import { Alert, SimpleGrid, Skeleton, Stack } from '@mantine/core'
@@ -21,6 +22,7 @@ import { brewDayNumber } from './utils'
 const ACTIVE_STATUSES = ['brewing', 'fermenting', 'conditioning']
 
 export function DashboardPage() {
+  const { LL } = useI18nContext()
   const { recipes, query: recipesQuery } = useRecipes()
   const { items, query: inventoryQuery } = useInventory()
   const { sessions, query: sessionsQuery } = useBrewSessions()
@@ -51,10 +53,10 @@ export function DashboardPage() {
 
   const activeBrewStat =
     activeBrews.length === 0
-      ? 'None'
+      ? LL.dashboard.stats.activeBrewNone()
       : activeBrews.length === 1 && primaryDay
-        ? `Day ${primaryDay}`
-        : `${activeBrews.length} Brewing`
+        ? LL.dashboard.stats.activeBrewDay({ day: primaryDay })
+        : LL.dashboard.stats.activeBrewing({ count: activeBrews.length })
   const activeBrewSub =
     activeBrews.length === 1
       ? primaryBrew?.recipe.name
@@ -63,7 +65,13 @@ export function DashboardPage() {
             .slice(0, 2)
             .map((b) => b.recipe.name)
             .concat(
-              activeBrews.length > 2 ? [`+${activeBrews.length - 2} more`] : [],
+              activeBrews.length > 2
+                ? [
+                    LL.dashboard.stats.moreRecipes({
+                      count: activeBrews.length - 2,
+                    }),
+                  ]
+                : [],
             )
             .join(', ')
         : undefined
@@ -74,12 +82,12 @@ export function DashboardPage() {
 
   return (
     <PageTemplate
-      title="Dashboard"
+      title={LL.nav.dashboard()}
       subtitle={dayjs().format('dddd, MMMM D, YYYY')}
     >
       {isError ? (
-        <Alert color="red" title="Couldn't load your dashboard">
-          Something went wrong fetching your data. Try refreshing the page.
+        <Alert color="red" title={LL.dashboard.loadError.title()}>
+          {LL.dashboard.loadError.message()}
         </Alert>
       ) : isLoading ? (
         <Stack gap="md">
@@ -93,27 +101,39 @@ export function DashboardPage() {
       ) : (
         <>
           <div className={classes.stats}>
-            <StatCard label="Recipes" value={recipes.length} sub="All-grain" />
             <StatCard
-              label="Total Batches"
+              label={LL.dashboard.stats.recipes()}
+              value={recipes.length}
+              sub={LL.dashboard.stats.allGrain()}
+            />
+            <StatCard
+              label={LL.dashboard.stats.totalBatches()}
               value={sessions.length}
               sub={
                 sessions.length > 0
-                  ? `${completedBatches} completed`
+                  ? LL.dashboard.stats.completedCount({
+                      count: completedBatches,
+                    })
                   : undefined
               }
             />
             <StatCard
-              label="Inventory Items"
+              label={LL.dashboard.stats.inventoryItems()}
               value={items.length}
               sub={
                 lowStockItems.length > 0
-                  ? `${lowStockItems.length} low stock`
-                  : 'Well stocked'
+                  ? LL.dashboard.stats.lowStockCount({
+                      count: lowStockItems.length,
+                    })
+                  : LL.dashboard.stats.wellStocked()
               }
             />
             <StatCard
-              label={activeBrews.length === 1 ? 'Active Brew' : 'Active Brews'}
+              label={
+                activeBrews.length === 1
+                  ? LL.dashboard.stats.activeBrew()
+                  : LL.dashboard.stats.activeBrews()
+              }
               value={activeBrewStat}
               sub={activeBrewSub}
               accent={activeBrews.length > 0}

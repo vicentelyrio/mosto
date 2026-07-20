@@ -1,14 +1,12 @@
+import { useI18nContext } from '@i18n/i18n-react'
+import type { TranslationFunctions } from '@i18n/i18n-types'
+
 import { Badge, Box, Group, Table, Text } from '@mantine/core'
 
 import type { InventoryCategory, InventoryItem } from '@domain'
 
 import { InventoryActionsMenu } from './inventory-actions-menu'
-import {
-  expiryBadge,
-  itemStatus,
-  STATUS_COLOR,
-  STATUS_LABEL,
-} from './inventory-meta'
+import { expiryBadge, itemStatus, STATUS_COLOR } from './inventory-meta'
 
 function StatusDot({ item }: { item: InventoryItem }) {
   return (
@@ -21,8 +19,14 @@ function StatusDot({ item }: { item: InventoryItem }) {
   )
 }
 
-function ExpiryCell({ expiry }: { expiry: string | null }) {
-  const badge = expiryBadge(expiry)
+function ExpiryCell({
+  LL,
+  expiry,
+}: {
+  LL: TranslationFunctions
+  expiry: string | null
+}) {
+  const badge = expiryBadge(LL, expiry)
   return (
     <Group gap={6} wrap="nowrap">
       <Text size="sm" c="dimmed">
@@ -37,8 +41,16 @@ function ExpiryCell({ expiry }: { expiry: string | null }) {
   )
 }
 
-function secondColumn(item: InventoryItem, category: InventoryCategory) {
-  if (category === 'hop') return `${item.alpha}% AA · ${item.form}`
+function secondColumn(
+  LL: TranslationFunctions,
+  item: InventoryItem,
+  category: InventoryCategory,
+) {
+  if (category === 'hop')
+    return LL.inventory.hopMeta({
+      alpha: item.alpha ?? 0,
+      form: item.form ?? '',
+    })
   if (category === 'yeast') return item.form
   return item.brand || '—'
 }
@@ -52,19 +64,24 @@ export function InventoryTable({
   category: InventoryCategory
   onEdit: (item: InventoryItem) => void
 }) {
+  const { LL } = useI18nContext()
   const secondHeader =
-    category === 'hop' ? 'Alpha' : category === 'yeast' ? 'Type' : 'Brand'
+    category === 'hop'
+      ? LL.inventory.table.alpha()
+      : category === 'yeast'
+        ? LL.inventory.table.type()
+        : LL.inventory.table.brand()
 
   return (
     <Table.ScrollContainer minWidth={600}>
       <Table verticalSpacing="sm" highlightOnHover>
         <Table.Thead>
           <Table.Tr>
-            <Table.Th>Name</Table.Th>
+            <Table.Th>{LL.inventory.table.name()}</Table.Th>
             <Table.Th>{secondHeader}</Table.Th>
-            <Table.Th>Amount</Table.Th>
-            <Table.Th>Expiry</Table.Th>
-            <Table.Th>Status</Table.Th>
+            <Table.Th>{LL.inventory.table.amount()}</Table.Th>
+            <Table.Th>{LL.inventory.table.expiry()}</Table.Th>
+            <Table.Th>{LL.inventory.table.status()}</Table.Th>
             <Table.Th />
           </Table.Tr>
         </Table.Thead>
@@ -81,7 +98,7 @@ export function InventoryTable({
                 </Table.Td>
                 <Table.Td>
                   <Text size="sm" c="dimmed">
-                    {secondColumn(item, category)}
+                    {secondColumn(LL, item, category)}
                   </Text>
                 </Table.Td>
                 <Table.Td>
@@ -90,11 +107,11 @@ export function InventoryTable({
                   </Text>
                 </Table.Td>
                 <Table.Td>
-                  <ExpiryCell expiry={item.expiry} />
+                  <ExpiryCell LL={LL} expiry={item.expiry} />
                 </Table.Td>
                 <Table.Td>
                   <Text size="sm" fw={600} c={STATUS_COLOR[status]}>
-                    {STATUS_LABEL[status]}
+                    {LL.inventory.status[status]()}
                   </Text>
                 </Table.Td>
                 <Table.Td>
