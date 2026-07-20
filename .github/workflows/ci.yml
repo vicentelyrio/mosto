@@ -6,6 +6,12 @@ on:
   pull_request:
 
 jobs:
+  version-sync:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - run: ./scripts/check-version-sync.sh
+
   frontend:
     runs-on: ubuntu-latest
     steps:
