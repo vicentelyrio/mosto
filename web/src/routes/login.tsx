@@ -1,5 +1,6 @@
 import { type SyntheticEvent, useState } from 'react'
 
+import { useI18nContext } from '@i18n/i18n-react'
 import { paths } from '@infrastructure'
 import { createFileRoute, useNavigate } from '@tanstack/react-router'
 
@@ -23,6 +24,7 @@ import classes from './login.module.css'
 export const Route = createFileRoute('/login')({ component: LoginPage })
 
 function LoginPage() {
+  const { LL } = useI18nContext()
   const navigate = useNavigate()
   const { signIn } = useAuth()
   const [username, setUsername] = useState('')
@@ -38,7 +40,9 @@ function LoginPage() {
       {
         onSuccess: () => navigate({ to: paths.dashboard }),
         onError: (err) =>
-          setError(err instanceof ApiError ? err.message : 'sign-in failed'),
+          setError(
+            err instanceof ApiError ? err.message : LL.login.signInFailed(),
+          ),
       },
     )
   }
@@ -51,7 +55,7 @@ function LoginPage() {
           <Stack align="center" gap={4}>
             <Text className={classes.title}>Mosto</Text>
             <Text size="sm" c="dark.2">
-              Sign in to your brewery
+              {LL.login.tagline()}
             </Text>
           </Stack>
         </Stack>
@@ -60,8 +64,8 @@ function LoginPage() {
           <form onSubmit={submit}>
             <Stack gap="md">
               <TextInput
-                label="Username"
-                placeholder="you@brewery.com"
+                label={LL.login.usernameLabel()}
+                placeholder={LL.login.usernamePlaceholder()}
                 classNames={{ label: classes.label }}
                 value={username}
                 onChange={(e) => setUsername(e.currentTarget.value)}
@@ -69,7 +73,7 @@ function LoginPage() {
                 required
               />
               <PasswordInput
-                label="Password"
+                label={LL.login.passwordLabel()}
                 placeholder="••••••••"
                 classNames={{ label: classes.label }}
                 value={password}
@@ -77,7 +81,7 @@ function LoginPage() {
                 required
               />
               <Checkbox
-                label="Remember me"
+                label={LL.login.rememberMe()}
                 checked={remember}
                 onChange={(e) => setRemember(e.currentTarget.checked)}
               />
@@ -87,13 +91,13 @@ function LoginPage() {
                 </Text>
               )}
               <Button type="submit" loading={signIn.isPending} fullWidth>
-                Sign in
+                {LL.login.signIn()}
               </Button>
             </Stack>
           </form>
         </Paper>
 
-        <Text className={classes.footer}>MOSTO · BREWING COMPANION</Text>
+        <Text className={classes.footer}>{LL.login.footer()}</Text>
       </Box>
     </Box>
   )

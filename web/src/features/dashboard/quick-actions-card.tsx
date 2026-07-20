@@ -1,3 +1,4 @@
+import { useI18nContext } from '@i18n/i18n-react'
 import { paths } from '@infrastructure'
 import { useNavigate } from '@tanstack/react-router'
 
@@ -10,13 +11,17 @@ export function QuickActionsCard({
 }: {
   activeRecipeId?: string
 }) {
+  const { LL } = useI18nContext()
   const navigate = useNavigate()
 
   const actions = [
-    { label: 'New Recipe', go: () => navigate({ to: paths.newRecipe }) },
+    {
+      label: LL.dashboard.quickActions.newRecipe(),
+      go: () => navigate({ to: paths.newRecipe }),
+    },
     activeRecipeId
       ? {
-          label: 'Continue Brewing',
+          label: LL.dashboard.quickActions.continueBrewing(),
           go: () =>
             navigate({
               to: paths.recipeBrewing,
@@ -24,16 +29,19 @@ export function QuickActionsCard({
             }),
         }
       : {
-          label: 'Start Brew Day',
+          label: LL.dashboard.quickActions.startBrewDay(),
           go: () => navigate({ to: paths.recipes }),
         },
-    { label: 'Conversions', go: () => navigate({ to: paths.conversions }) },
+    {
+      label: LL.nav.conversions(),
+      go: () => navigate({ to: paths.conversions }),
+    },
   ]
 
   return (
     <Box className={classes.card}>
       <Text className={classes.title} mb="sm">
-        Quick Actions
+        {LL.dashboard.quickActions.title()}
       </Text>
       <Stack gap="xs">
         {actions.map(({ label, go }) => (

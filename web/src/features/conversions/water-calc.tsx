@@ -1,5 +1,7 @@
 import { useState } from 'react'
 
+import { useI18nContext } from '@i18n/i18n-react'
+
 import {
   Badge,
   Group,
@@ -23,6 +25,7 @@ const ION_LABELS: Record<keyof WaterIonProfile, string> = {
 }
 
 export function WaterCalc() {
+  const { LL } = useI18nContext()
   const [volume, setVolume] = useState<number | ''>(7.5)
   const [ph, setPh] = useState<number | ''>(5.4)
   const [ions, setIons] = useState<WaterIonProfile>({
@@ -36,20 +39,20 @@ export function WaterCalc() {
   const setIon = (key: keyof WaterIonProfile, value: number | '') =>
     setIons((prev) => ({ ...prev, [key]: value === '' ? 0 : value }))
 
-  const profile = sulfateChlorideProfile(ions.so4, ions.cl)
+  const profile = sulfateChlorideProfile(LL, ions.so4, ions.cl)
   const ratio = ions.so4 / (ions.cl || 1)
 
   return (
-    <CalcCard title="Water Chemistry">
+    <CalcCard title={LL.conversions.water.title()}>
       <SimpleGrid cols={2}>
         <NumberInput
-          label="Volume (gal)"
+          label={LL.conversions.water.volumeLabel()}
           value={volume}
           onChange={(v) => setVolume(v === '' ? '' : Number(v))}
           hideControls
         />
         <NumberInput
-          label="pH Target"
+          label={LL.conversions.water.phTargetLabel()}
           value={ph}
           onChange={(v) => setPh(v === '' ? '' : Number(v))}
           decimalScale={1}
@@ -102,7 +105,7 @@ export function WaterCalc() {
         style={{ borderRadius: 'var(--mantine-radius-md)' }}
       >
         <Text size="sm" c="dimmed">
-          SO₄:Cl Ratio ·{' '}
+          {LL.conversions.water.ratioLabel()}{' '}
           <Text component="span" fw={700} c={profile.color}>
             {profile.label}
           </Text>

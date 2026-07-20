@@ -1,5 +1,7 @@
 import { type ReactNode, useState } from 'react'
 
+import { useI18nContext } from '@i18n/i18n-react'
+
 import { Box, Menu } from '@mantine/core'
 
 import {
@@ -25,6 +27,7 @@ export function RecipeContextMenu({
   onDeleted?: () => void
   children: ReactNode
 }) {
+  const { LL } = useI18nContext()
   const [point, setPoint] = useState<{ x: number; y: number } | null>(null)
   const { edit, startBrewing, isBrewing, clone, exportBeerXml, confirmDelete } =
     useRecipeActions(recipe, onDeleted)
@@ -60,22 +63,24 @@ export function RecipeContextMenu({
             leftSection={<PencilSimpleIcon size={16} />}
             onClick={edit}
           >
-            Edit
+            {LL.common.edit()}
           </Menu.Item>
           <Menu.Item
             leftSection={<CookingPotIcon size={16} />}
             onClick={startBrewing}
           >
-            {isBrewing ? 'Resume Brewing' : 'Start Brewing'}
+            {isBrewing
+              ? LL.recipes.actions.resumeBrewing()
+              : LL.recipes.actions.startBrewing()}
           </Menu.Item>
           <Menu.Item leftSection={<CopyIcon size={16} />} onClick={clone}>
-            Clone
+            {LL.recipes.actions.clone()}
           </Menu.Item>
           <Menu.Item
             leftSection={<DownloadSimpleIcon size={16} />}
             onClick={exportBeerXml}
           >
-            Export BeerXML
+            {LL.recipes.actions.exportBeerXml()}
           </Menu.Item>
           <Menu.Divider />
           <Menu.Item
@@ -83,7 +88,7 @@ export function RecipeContextMenu({
             leftSection={<TrashIcon size={16} />}
             onClick={confirmDelete}
           >
-            Delete
+            {LL.common.delete()}
           </Menu.Item>
         </Menu.Dropdown>
       </Menu>

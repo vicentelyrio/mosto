@@ -1,3 +1,5 @@
+import { useI18nContext } from '@i18n/i18n-react'
+
 import { Button, Group, Paper, Progress, Stack, Text } from '@mantine/core'
 
 import { PauseIcon, PlayIcon } from '@phosphor-icons/react'
@@ -33,6 +35,7 @@ export function NowCard({
   onPlus5: () => void
   onConfirm: () => void
 }) {
+  const { LL } = useI18nContext()
   const hasDur = step.duration > 0
   const pct =
     hasDur && started
@@ -60,7 +63,7 @@ export function NowCard({
                 tt="uppercase"
                 style={{ letterSpacing: '0.08em' }}
               >
-                Now · {step.phase}
+                {LL.brewday.nowCard.nowInPhase({ phase: step.phase })}
               </Text>
               {isOvertime && (
                 <Text
@@ -71,7 +74,7 @@ export function NowCard({
                   className={classes.blink}
                   style={{ letterSpacing: '0.06em' }}
                 >
-                  Time's up
+                  {LL.brewday.nowCard.timesUp()}
                 </Text>
               )}
             </Group>
@@ -99,8 +102,8 @@ export function NowCard({
               </Text>
               <Text size="xs" c="dimmed">
                 {isOvertime
-                  ? 'over planned time'
-                  : `of ${formatDuration(step.duration)}${started && !running ? ' · paused' : ''}`}
+                  ? LL.brewday.nowCard.overPlanned()
+                  : `${LL.brewday.nowCard.ofDuration({ duration: formatDuration(step.duration) })}${started && !running ? LL.brewday.nowCard.paused() : ''}`}
               </Text>
             </Stack>
           ) : (
@@ -110,7 +113,7 @@ export function NowCard({
               fs="italic"
               style={{ alignSelf: 'center' }}
             >
-              No timer — confirm when done
+              {LL.brewday.nowCard.noTimer()}
             </Text>
           )}
         </Group>
@@ -132,7 +135,9 @@ export function NowCard({
               leftSection={<PlayIcon size={12} />}
               onClick={onStart}
             >
-              Start {formatDuration(step.duration)} timer
+              {LL.brewday.nowCard.startTimer({
+                duration: formatDuration(step.duration),
+              })}
             </Button>
           )}
           {started && running && (
@@ -142,7 +147,7 @@ export function NowCard({
               leftSection={<PauseIcon size={12} />}
               onClick={onPauseResume}
             >
-              Pause
+              {LL.brewday.nowCard.pause()}
             </Button>
           )}
           {started && !running && (
@@ -153,28 +158,32 @@ export function NowCard({
               leftSection={<PlayIcon size={12} />}
               onClick={onPauseResume}
             >
-              Resume
+              {LL.brewday.nowCard.resume()}
             </Button>
           )}
           {started && (
             <Button size="xs" variant="default" onClick={onPlus5}>
-              +5m
+              {LL.brewday.nowCard.plus5()}
             </Button>
           )}
           <div style={{ flex: 1 }} />
           <Button size="sm" onClick={onConfirm}>
-            {next ? `Done — next: ${next.label} →` : 'Done — finish brew day →'}
+            {next
+              ? LL.brewday.nowCard.doneNext({ label: next.label })
+              : LL.brewday.nowCard.doneFinish()}
           </Button>
         </Group>
 
         <Text size="xs" c={isOvertime ? 'red' : 'dimmed'} ta="right">
           {isOvertime
-            ? 'Waiting for your confirmation — add time if you need it.'
+            ? LL.brewday.nowCard.waitingConfirm()
             : next && next.duration > 0
-              ? `Next timer (${formatDuration(next.duration)}) starts automatically after you confirm.`
+              ? LL.brewday.nowCard.nextTimerStarts({
+                  duration: formatDuration(next.duration),
+                })
               : next
-                ? 'Next step has no timer.'
-                : 'Last step of the batch.'}
+                ? LL.brewday.nowCard.nextNoTimer()
+                : LL.brewday.nowCard.lastStep()}
         </Text>
       </Stack>
     </Paper>

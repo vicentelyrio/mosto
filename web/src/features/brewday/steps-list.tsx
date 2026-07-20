@@ -1,5 +1,7 @@
 import { useState } from 'react'
 
+import { useI18nContext } from '@i18n/i18n-react'
+
 import { Badge, Box, Group, Stack, Text, UnstyledButton } from '@mantine/core'
 
 import { CheckIcon } from '@phosphor-icons/react'
@@ -25,6 +27,7 @@ export function StepsList({
   liveIsOvertime: boolean
   onToggle: (stepId: number) => void
 }) {
+  const { LL } = useI18nContext()
   const [activeStep, setActiveStep] = useState<number | null>(null)
   const phases = [...new Set(steps.map((s) => s.phase))]
 
@@ -78,7 +81,7 @@ export function StepsList({
                           </Text>
                           {isNow && (
                             <Badge size="xs" color="amber">
-                              Now
+                              {LL.brewday.stepsList.now()}
                             </Badge>
                           )}
                         </Group>

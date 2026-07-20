@@ -1,5 +1,6 @@
 import { useState } from 'react'
 
+import { useI18nContext } from '@i18n/i18n-react'
 import { paths } from '@infrastructure'
 import { useNavigate } from '@tanstack/react-router'
 
@@ -108,6 +109,7 @@ type RecipeFormDrawerProps =
   | { mode: 'edit'; recipe: Recipe }
 
 export function RecipeFormDrawer(props: RecipeFormDrawerProps) {
+  const { LL } = useI18nContext()
   const navigate = useNavigate()
   const { create, update } = useRecipes()
   const [submitError, setSubmitError] = useState<string | null>(null)
@@ -116,8 +118,8 @@ export function RecipeFormDrawer(props: RecipeFormDrawerProps) {
     initialValues:
       props.mode === 'edit' ? valuesFromRecipe(props.recipe) : EMPTY_VALUES,
     validate: {
-      name: (v) => (v.trim() ? null : 'Required'),
-      style: (v) => (v.trim() ? null : 'Required'),
+      name: (v) => (v.trim() ? null : LL.common.required()),
+      style: (v) => (v.trim() ? null : LL.common.required()),
     },
   })
 
@@ -131,7 +133,9 @@ export function RecipeFormDrawer(props: RecipeFormDrawerProps) {
 
   const onError = (err: unknown) =>
     setSubmitError(
-      err instanceof ApiError ? err.message : 'Could not save this recipe',
+      err instanceof ApiError
+        ? err.message
+        : LL.recipes.form.saveError.generic(),
     )
 
   const submit = form.onSubmit((values) => {
@@ -162,10 +166,11 @@ export function RecipeFormDrawer(props: RecipeFormDrawerProps) {
   const subtitle =
     [
       form.values.style,
-      form.values.bjcp_code && `BJCP ${form.values.bjcp_code}`,
+      form.values.bjcp_code &&
+        LL.recipes.form.bjcpFragment({ code: form.values.bjcp_code }),
     ]
       .filter(Boolean)
-      .join(' · ') || 'Style · BJCP code'
+      .join(' · ') || LL.recipes.form.styleBjcpPlaceholder()
 
   return (
     <Drawer
@@ -179,7 +184,7 @@ export function RecipeFormDrawer(props: RecipeFormDrawerProps) {
     >
       <Box className={drawerClasses.wrapper}>
         <RecipeDrawerHeader
-          name={form.values.name || 'New Recipe'}
+          name={form.values.name || LL.recipes.newRecipe()}
           subtitle={subtitle}
           srm={form.values.srm}
           onClose={close}
@@ -189,42 +194,42 @@ export function RecipeFormDrawer(props: RecipeFormDrawerProps) {
           <Box className={drawerClasses.body}>
             <Stack gap="md">
               {submitError && (
-                <Alert color="red" title="Couldn't save">
+                <Alert color="red" title={LL.recipes.form.saveError.title()}>
                   {submitError}
                 </Alert>
               )}
 
               <TextInput
-                label="Name"
+                label={LL.recipes.form.nameLabel()}
                 required
                 {...form.getInputProps('name')}
               />
               <Group grow>
                 <TextInput
-                  label="Style"
+                  label={LL.recipes.form.styleLabel()}
                   required
                   {...form.getInputProps('style')}
                 />
                 <TextInput
-                  label="BJCP code"
+                  label={LL.recipes.form.bjcpCodeLabel()}
                   {...form.getInputProps('bjcp_code')}
                 />
               </Group>
 
               <SimpleGrid cols={2}>
                 <NumberInput
-                  label="Batch size (gal)"
+                  label={LL.recipes.form.batchSizeLabel()}
                   min={0}
                   step={0.5}
                   {...form.getInputProps('batch_size')}
                 />
                 <NumberInput
-                  label="Boil time (min)"
+                  label={LL.recipes.form.boilTimeLabel()}
                   min={0}
                   {...form.getInputProps('boil_time')}
                 />
                 <NumberInput
-                  label="OG"
+                  label={LL.recipes.form.ogLabel()}
                   min={0}
                   step={0.001}
                   decimalScale={3}
@@ -232,7 +237,7 @@ export function RecipeFormDrawer(props: RecipeFormDrawerProps) {
                   {...form.getInputProps('og')}
                 />
                 <NumberInput
-                  label="FG"
+                  label={LL.recipes.form.fgLabel()}
                   min={0}
                   step={0.001}
                   decimalScale={3}
@@ -240,23 +245,23 @@ export function RecipeFormDrawer(props: RecipeFormDrawerProps) {
                   {...form.getInputProps('fg')}
                 />
                 <NumberInput
-                  label="ABV %"
+                  label={LL.recipes.form.abvLabel()}
                   min={0}
                   step={0.1}
                   {...form.getInputProps('abv')}
                 />
                 <NumberInput
-                  label="IBU"
+                  label={LL.recipes.form.ibuLabel()}
                   min={0}
                   {...form.getInputProps('ibu')}
                 />
                 <NumberInput
-                  label="SRM"
+                  label={LL.recipes.form.srmLabel()}
                   min={0}
                   {...form.getInputProps('srm')}
                 />
                 <NumberInput
-                  label="Efficiency %"
+                  label={LL.recipes.form.efficiencyLabel()}
                   min={0}
                   max={100}
                   {...form.getInputProps('efficiency')}
@@ -264,13 +269,13 @@ export function RecipeFormDrawer(props: RecipeFormDrawerProps) {
               </SimpleGrid>
 
               <TextInput
-                label="Tags"
-                description="Comma-separated"
+                label={LL.recipes.form.tagsLabel()}
+                description={LL.recipes.form.tagsDescription()}
                 {...form.getInputProps('tags')}
               />
 
               <Textarea
-                label="Notes"
+                label={LL.recipes.form.notesLabel()}
                 minRows={3}
                 {...form.getInputProps('notes')}
               />
@@ -279,10 +284,12 @@ export function RecipeFormDrawer(props: RecipeFormDrawerProps) {
 
           <Group className={drawerClasses.footer} justify="flex-end">
             <Button variant="subtle" onClick={close} type="button">
-              Cancel
+              {LL.common.cancel()}
             </Button>
             <Button type="submit" loading={pending}>
-              {props.mode === 'edit' ? 'Save changes' : 'Create recipe'}
+              {props.mode === 'edit'
+                ? LL.recipes.form.saveChanges()
+                : LL.recipes.form.createRecipe()}
             </Button>
           </Group>
         </form>

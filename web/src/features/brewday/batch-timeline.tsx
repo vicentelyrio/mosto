@@ -1,3 +1,5 @@
+import { useI18nContext } from '@i18n/i18n-react'
+
 import { Box, Group, Progress, Stack, Text } from '@mantine/core'
 
 import { formatDuration } from './format'
@@ -14,6 +16,7 @@ export function BatchTimeline({
   current: BrewStep | null
   currentElapsedMinutes: number
 }) {
+  const { LL } = useI18nContext()
   const total = steps.reduce((sum, s) => sum + s.duration, 0)
   const doneMinutes = steps
     .filter((s) => completedIds.includes(s.id))
@@ -34,13 +37,13 @@ export function BatchTimeline({
           ff="monospace"
           style={{ letterSpacing: '0.08em' }}
         >
-          Batch Timeline
+          {LL.brewday.timeline.title()}
         </Text>
         <Text size="xs" ff="monospace" c="dimmed">
           <Text component="span" c="amber" ff="monospace" fw={600} span>
             {formatDuration(Math.round(elapsed))}
           </Text>{' '}
-          of {formatDuration(total)} planned
+          {LL.brewday.timeline.ofPlanned({ total: formatDuration(total) })}
         </Text>
       </Group>
 

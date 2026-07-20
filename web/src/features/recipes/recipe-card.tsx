@@ -1,3 +1,6 @@
+import { useI18nContext } from '@i18n/i18n-react'
+import type { TranslationFunctions } from '@i18n/i18n-types'
+
 import { Badge, Box, Group, SimpleGrid, Stack, Text } from '@mantine/core'
 
 import type { Recipe } from '@domain'
@@ -8,12 +11,12 @@ import { RecipeContextMenu } from './recipe-context-menu'
 import { srmToHex } from './srm'
 import { useRecipeActions } from './use-recipe-actions'
 
-const STATS = (recipe: Recipe) =>
+const STATS = (LL: TranslationFunctions, recipe: Recipe) =>
   [
-    ['ABV', `${recipe.abv}%`],
-    ['IBU', recipe.ibu],
-    ['OG', recipe.og.toFixed(3)],
-    ['SRM', recipe.srm],
+    [LL.recipes.stats.abv(), `${recipe.abv}%`],
+    [LL.recipes.stats.ibu(), recipe.ibu],
+    [LL.recipes.stats.og(), recipe.og.toFixed(3)],
+    [LL.recipes.stats.srm(), recipe.srm],
   ] as const
 
 export function RecipeCard({
@@ -23,6 +26,7 @@ export function RecipeCard({
   recipe: Recipe
   onClick: () => void
 }) {
+  const { LL } = useI18nContext()
   const color = srmToHex(recipe.srm)
   const { isBrewing } = useRecipeActions(recipe)
 
@@ -37,12 +41,15 @@ export function RecipeCard({
                 <Text fw={700}>{recipe.name}</Text>
                 {isBrewing && (
                   <Badge color="amber" variant="light" size="sm">
-                    Brewing
+                    {LL.recipes.brewingBadge()}
                   </Badge>
                 )}
               </Group>
               <Text size="xs" c="dimmed">
-                {recipe.style} · BJCP {recipe.bjcp_code}
+                {LL.recipes.styleBjcp({
+                  style: recipe.style,
+                  code: recipe.bjcp_code,
+                })}
               </Text>
             </Stack>
             <RecipeActionsMenu recipe={recipe} />
@@ -59,7 +66,7 @@ export function RecipeCard({
           )}
 
           <SimpleGrid cols={4} spacing="xs">
-            {STATS(recipe).map(([label, value]) => (
+            {STATS(LL, recipe).map(([label, value]) => (
               <Box key={label} className={classes.stat}>
                 <Text size="xs" c="dimmed">
                   {label}
@@ -71,11 +78,11 @@ export function RecipeCard({
 
           <Group justify="space-between">
             <Text size="xs" c="dimmed">
-              {recipe.batch_size} gal
+              {LL.recipes.batchSize({ size: recipe.batch_size })}
             </Text>
             {recipe.last_brewed && (
               <Text size="xs" c="dimmed">
-                Last brewed {recipe.last_brewed}
+                {LL.recipes.lastBrewed({ date: recipe.last_brewed })}
               </Text>
             )}
           </Group>

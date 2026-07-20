@@ -1,3 +1,5 @@
+import { useI18nContext } from '@i18n/i18n-react'
+
 import { Box, Group, Stack, Text } from '@mantine/core'
 
 import type { Recipe } from '@domain'
@@ -5,12 +7,13 @@ import type { Recipe } from '@domain'
 import classes from './hop-schedule.module.css'
 
 export function HopSchedule({ recipe }: { recipe: Recipe }) {
+  const { LL } = useI18nContext()
   const hops = [...recipe.hops].sort((a, b) => b.time - a.time)
 
   if (hops.length === 0) {
     return (
       <Text c="dimmed" size="sm">
-        No hops recorded.
+        {LL.brewday.hopSchedule.empty()}
       </Text>
     )
   }
@@ -18,7 +21,7 @@ export function HopSchedule({ recipe }: { recipe: Recipe }) {
   return (
     <Stack gap="lg">
       <Text fw={700} size="md">
-        Hop Addition Timeline
+        {LL.brewday.hopSchedule.title()}
       </Text>
       <Box className={classes.timeline}>
         <Box className={classes.rail} />
@@ -42,7 +45,12 @@ export function HopSchedule({ recipe }: { recipe: Recipe }) {
                   {h.name}
                 </Text>
                 <Text size="xs" c="dimmed" mt={2}>
-                  {h.amount} {h.unit} · {h.use} · {h.alpha}% AA
+                  {LL.brewday.hopSchedule.detail({
+                    amount: h.amount,
+                    unit: h.unit,
+                    use: h.use,
+                    alpha: h.alpha,
+                  })}
                 </Text>
               </Box>
             </Group>

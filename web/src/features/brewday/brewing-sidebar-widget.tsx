@@ -1,3 +1,4 @@
+import { useI18nContext } from '@i18n/i18n-react'
 import { paths } from '@infrastructure'
 import { useQueries } from '@tanstack/react-query'
 import { useNavigate } from '@tanstack/react-router'
@@ -20,6 +21,7 @@ import { generateSteps } from './steps'
  *  used" widget, but one row per active (non-archived) brew session instead
  *  of a single capacity bar, since there can be more than one going at once. */
 export function BrewingSidebarWidget() {
+  const { LL } = useI18nContext()
   const navigate = useNavigate()
   const { sessions } = useBrewSessions()
   const { recipes } = useRecipes()
@@ -37,7 +39,7 @@ export function BrewingSidebarWidget() {
     .map((session, i) => {
       const recipe = recipes.find((r) => r.id === session.recipe_id)
       if (!recipe) return null
-      const totalSteps = generateSteps(recipe).length
+      const totalSteps = generateSteps(LL, recipe).length
       const completed = stepQueries[i]?.data?.length ?? 0
       const pct =
         totalSteps === 0 ? 0 : Math.round((completed / totalSteps) * 100)
@@ -51,7 +53,7 @@ export function BrewingSidebarWidget() {
     <Box className={classes.card}>
       <Group justify="space-between" mb="sm">
         <Text size="sm" fw={600}>
-          Brewing
+          {LL.brewday.sidebarWidget.title()}
         </Text>
         <Text size="sm" c="dimmed">
           {rows.length}
@@ -76,7 +78,10 @@ export function BrewingSidebarWidget() {
             </Group>
             <Progress value={pct} size="xs" color="amber" mb={4} />
             <Text size="xs" c="dimmed">
-              {completed} of {totalSteps} steps done
+              {LL.brewday.sidebarWidget.stepsDone({
+                completed,
+                total: totalSteps,
+              })}
             </Text>
           </UnstyledButton>
         ))}

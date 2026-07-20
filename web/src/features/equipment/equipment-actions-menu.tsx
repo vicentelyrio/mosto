@@ -1,3 +1,5 @@
+import { useI18nContext } from '@i18n/i18n-react'
+
 import { ActionIcon, Menu } from '@mantine/core'
 
 import {
@@ -17,6 +19,7 @@ export function EquipmentActionsMenu({
   item: Equipment
   onEdit: (item: Equipment) => void
 }) {
+  const { LL } = useI18nContext()
   const { edit, confirmDelete } = useEquipmentActions(item, onEdit)
 
   return (
@@ -25,7 +28,7 @@ export function EquipmentActionsMenu({
         <ActionIcon
           variant="default"
           color="gray"
-          aria-label="Equipment actions"
+          aria-label={LL.equipment.actionsLabel()}
           onClick={(e) => e.stopPropagation()}
         >
           <DotsThreeVerticalIcon size={18} weight="bold" />
@@ -33,7 +36,7 @@ export function EquipmentActionsMenu({
       </Menu.Target>
       <Menu.Dropdown>
         <Menu.Item leftSection={<PencilSimpleIcon size={16} />} onClick={edit}>
-          Edit
+          {LL.common.edit()}
         </Menu.Item>
         <Menu.Divider />
         <Menu.Item
@@ -41,7 +44,7 @@ export function EquipmentActionsMenu({
           leftSection={<TrashIcon size={16} />}
           onClick={confirmDelete}
         >
-          Delete
+          {LL.common.delete()}
         </Menu.Item>
       </Menu.Dropdown>
     </Menu>

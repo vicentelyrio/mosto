@@ -1,5 +1,7 @@
 import { useState } from 'react'
 
+import { useI18nContext } from '@i18n/i18n-react'
+
 import {
   Alert,
   Box,
@@ -24,12 +26,7 @@ import {
 
 import drawerClasses from './inventory-drawer.module.css'
 import { InventoryDrawerHeader } from './inventory-drawer-header'
-import {
-  CATEGORIES,
-  CATEGORY_COLORS,
-  CATEGORY_LABELS,
-  UNITS,
-} from './inventory-meta'
+import { CATEGORY_COLORS, CATEGORY_KEYS, UNITS } from './inventory-meta'
 
 interface FormValues {
   category: InventoryCategory
@@ -96,6 +93,7 @@ type InventoryItemFormDrawerProps =
   | { mode: 'edit'; item: InventoryItem; onClose: () => void }
 
 export function InventoryItemFormDrawer(props: InventoryItemFormDrawerProps) {
+  const { LL } = useI18nContext()
   const { create, update } = useInventory()
   const [submitError, setSubmitError] = useState<string | null>(null)
 
@@ -105,9 +103,9 @@ export function InventoryItemFormDrawer(props: InventoryItemFormDrawerProps) {
         ? valuesFromItem(props.item)
         : emptyValues(props.category),
     validate: {
-      name: (v) => (v.trim() ? null : 'Required'),
-      amount: (v) => (v === '' ? 'Required' : null),
-      unit: (v) => (v.trim() ? null : 'Required'),
+      name: (v) => (v.trim() ? null : LL.common.required()),
+      amount: (v) => (v === '' ? LL.common.required() : null),
+      unit: (v) => (v.trim() ? null : LL.common.required()),
     },
   })
 
@@ -116,7 +114,7 @@ export function InventoryItemFormDrawer(props: InventoryItemFormDrawerProps) {
 
   const onError = (err: unknown) =>
     setSubmitError(
-      err instanceof ApiError ? err.message : 'Could not save this item',
+      err instanceof ApiError ? err.message : LL.inventory.saveError.generic(),
     )
 
   const submit = form.onSubmit((values) => {
@@ -146,8 +144,8 @@ export function InventoryItemFormDrawer(props: InventoryItemFormDrawerProps) {
     >
       <Box className={drawerClasses.wrapper}>
         <InventoryDrawerHeader
-          name={form.values.name || 'New Item'}
-          subtitle={CATEGORY_LABELS[form.values.category]}
+          name={form.values.name || LL.inventory.newItem()}
+          subtitle={LL.inventory.category[form.values.category]()}
           color={CATEGORY_COLORS[form.values.category]}
           onClose={props.onClose}
         />
@@ -156,34 +154,39 @@ export function InventoryItemFormDrawer(props: InventoryItemFormDrawerProps) {
           <Box className={drawerClasses.body}>
             <Stack gap="md">
               {submitError && (
-                <Alert color="red" title="Couldn't save">
+                <Alert color="red" title={LL.inventory.saveError.title()}>
                   {submitError}
                 </Alert>
               )}
 
               <Select
-                label="Category"
-                data={CATEGORIES.map((c) => ({ value: c.key, label: c.label }))}
+                label={LL.inventory.form.categoryLabel()}
+                data={CATEGORY_KEYS.map((key) => ({
+                  value: key,
+                  label: LL.inventory.category[key](),
+                }))}
                 allowDeselect={false}
                 {...form.getInputProps('category')}
               />
 
               <TextInput
-                label="Name"
-                placeholder={`e.g. ${CATEGORY_LABELS[form.values.category]}`}
+                label={LL.inventory.form.nameLabel()}
+                placeholder={LL.inventory.form.namePlaceholder({
+                  category: LL.inventory.category[form.values.category](),
+                })}
                 required
                 {...form.getInputProps('name')}
               />
 
               <SimpleGrid cols={2}>
                 <NumberInput
-                  label="Amount"
+                  label={LL.inventory.form.amountLabel()}
                   min={0}
                   required
                   {...form.getInputProps('amount')}
                 />
                 <Select
-                  label="Unit"
+                  label={LL.inventory.form.unitLabel()}
                   data={UNITS as unknown as string[]}
                   allowDeselect={false}
                   {...form.getInputProps('unit')}
@@ -192,15 +195,15 @@ export function InventoryItemFormDrawer(props: InventoryItemFormDrawerProps) {
 
               <SimpleGrid cols={2}>
                 <NumberInput
-                  label="Low stock threshold"
-                  description="Optional"
+                  label={LL.inventory.form.lowThresholdLabel()}
+                  description={LL.inventory.form.optional()}
                   min={0}
                   {...form.getInputProps('low_threshold')}
                 />
                 <TextInput
                   type="date"
-                  label="Expiry"
-                  description="Optional"
+                  label={LL.inventory.form.expiryLabel()}
+                  description={LL.inventory.form.optional()}
                   {...form.getInputProps('expiry')}
                 />
               </SimpleGrid>
@@ -208,13 +211,13 @@ export function InventoryItemFormDrawer(props: InventoryItemFormDrawerProps) {
               {isHop && (
                 <SimpleGrid cols={2}>
                   <NumberInput
-                    label="Alpha acid %"
+                    label={LL.inventory.form.alphaLabel()}
                     step={0.1}
                     min={0}
                     {...form.getInputProps('alpha')}
                   />
                   <Select
-                    label="Form"
+                    label={LL.inventory.form.formLabel()}
                     data={['pellet', 'whole']}
                     allowDeselect={false}
                     {...form.getInputProps('form')}
@@ -225,14 +228,14 @@ export function InventoryItemFormDrawer(props: InventoryItemFormDrawerProps) {
               {isYeast && (
                 <SimpleGrid cols={2}>
                   <Select
-                    label="Form"
+                    label={LL.inventory.form.formLabel()}
                     data={['liquid', 'dry', 'slant', 'culture']}
                     allowDeselect={false}
                     {...form.getInputProps('form')}
                   />
                   <TextInput
-                    label="Attenuation"
-                    placeholder="e.g. 73-77%"
+                    label={LL.inventory.form.attenuationLabel()}
+                    placeholder={LL.inventory.form.attenuationPlaceholder()}
                     {...form.getInputProps('attenuation')}
                   />
                 </SimpleGrid>
@@ -240,8 +243,8 @@ export function InventoryItemFormDrawer(props: InventoryItemFormDrawerProps) {
 
               {!isHop && !isYeast && (
                 <TextInput
-                  label="Brand"
-                  description="Optional"
+                  label={LL.inventory.form.brandLabel()}
+                  description={LL.inventory.form.optional()}
                   {...form.getInputProps('brand')}
                 />
               )}
@@ -250,10 +253,12 @@ export function InventoryItemFormDrawer(props: InventoryItemFormDrawerProps) {
 
           <Group className={drawerClasses.footer} justify="flex-end">
             <Button variant="subtle" onClick={props.onClose} type="button">
-              Cancel
+              {LL.common.cancel()}
             </Button>
             <Button type="submit" loading={pending}>
-              {props.mode === 'edit' ? 'Save changes' : 'Add item'}
+              {props.mode === 'edit'
+                ? LL.inventory.form.saveChanges()
+                : LL.inventory.form.addItem()}
             </Button>
           </Group>
         </form>

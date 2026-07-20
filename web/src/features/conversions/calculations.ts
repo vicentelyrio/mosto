@@ -1,6 +1,8 @@
 // Pure brewing math — ported from the design project's brew-data.jsx /
 // brew-conversions.jsx. No persistence, so this stays client-only.
 
+import type { TranslationFunctions } from '@i18n/i18n-types'
+
 export function sgToPlato(sg: number): number {
   return -616.868 + 1111.14 * sg - 630.272 * sg ** 2 + 135.997 * sg ** 3
 }
@@ -93,12 +95,19 @@ export const WATER_ION_RANGES: Record<keyof WaterIonProfile, [number, number]> =
   }
 
 export function sulfateChlorideProfile(
+  LL: TranslationFunctions,
   so4: number,
   cl: number,
 ): { label: string; color: string } {
   const ratio = so4 / (cl || 1)
-  if (ratio > 3) return { label: 'Hoppy / Bitter', color: 'green' }
-  if (ratio > 1.5) return { label: 'Balanced Hoppy', color: 'yellow' }
-  if (ratio > 0.7) return { label: 'Balanced', color: 'gray' }
-  return { label: 'Malty / Soft', color: 'amber' }
+  if (ratio > 3)
+    return { label: LL.conversions.water.profile.hoppy(), color: 'green' }
+  if (ratio > 1.5)
+    return {
+      label: LL.conversions.water.profile.balancedHoppy(),
+      color: 'yellow',
+    }
+  if (ratio > 0.7)
+    return { label: LL.conversions.water.profile.balanced(), color: 'gray' }
+  return { label: LL.conversions.water.profile.malty(), color: 'amber' }
 }

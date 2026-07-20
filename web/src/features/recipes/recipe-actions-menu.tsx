@@ -1,3 +1,5 @@
+import { useI18nContext } from '@i18n/i18n-react'
+
 import { ActionIcon, Menu } from '@mantine/core'
 
 import {
@@ -20,6 +22,7 @@ export function RecipeActionsMenu({
   recipe: Recipe
   onDeleted?: () => void
 }) {
+  const { LL } = useI18nContext()
   const { edit, startBrewing, isBrewing, clone, exportBeerXml, confirmDelete } =
     useRecipeActions(recipe, onDeleted)
 
@@ -29,7 +32,7 @@ export function RecipeActionsMenu({
         <ActionIcon
           variant="default"
           color="gray"
-          aria-label="Recipe actions"
+          aria-label={LL.recipes.actionsLabel()}
           onClick={(e) => e.stopPropagation()}
         >
           <DotsThreeVerticalIcon size={18} weight="bold" />
@@ -37,22 +40,24 @@ export function RecipeActionsMenu({
       </Menu.Target>
       <Menu.Dropdown>
         <Menu.Item leftSection={<PencilSimpleIcon size={16} />} onClick={edit}>
-          Edit
+          {LL.common.edit()}
         </Menu.Item>
         <Menu.Item
           leftSection={<CookingPotIcon size={16} />}
           onClick={startBrewing}
         >
-          {isBrewing ? 'Resume Brewing' : 'Start Brewing'}
+          {isBrewing
+            ? LL.recipes.actions.resumeBrewing()
+            : LL.recipes.actions.startBrewing()}
         </Menu.Item>
         <Menu.Item leftSection={<CopyIcon size={16} />} onClick={clone}>
-          Clone
+          {LL.recipes.actions.clone()}
         </Menu.Item>
         <Menu.Item
           leftSection={<DownloadSimpleIcon size={16} />}
           onClick={exportBeerXml}
         >
-          Export BeerXML
+          {LL.recipes.actions.exportBeerXml()}
         </Menu.Item>
         <Menu.Divider />
         <Menu.Item
@@ -60,7 +65,7 @@ export function RecipeActionsMenu({
           leftSection={<TrashIcon size={16} />}
           onClick={confirmDelete}
         >
-          Delete
+          {LL.common.delete()}
         </Menu.Item>
       </Menu.Dropdown>
     </Menu>

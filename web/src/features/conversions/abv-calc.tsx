@@ -1,5 +1,7 @@
 import { useState } from 'react'
 
+import { useI18nContext } from '@i18n/i18n-react'
+
 import { Box, SimpleGrid, Text } from '@mantine/core'
 
 import { CalcCard } from './calc-card'
@@ -21,6 +23,7 @@ function StatTile({ label, value }: { label: string; value: string }) {
 }
 
 export function AbvCalc() {
+  const { LL } = useI18nContext()
   const [og, setOg] = useState<number | ''>(1.065)
   const [fg, setFg] = useState<number | ''>(1.012)
 
@@ -31,10 +34,10 @@ export function AbvCalc() {
   const attenuation = calcAttenuation(ogVal, fgVal)
 
   return (
-    <CalcCard title="ABV / ABW">
+    <CalcCard title={LL.conversions.abv.title()}>
       <SimpleGrid cols={2}>
         <CalcField
-          label="Original Gravity"
+          label={LL.conversions.abv.ogLabel()}
           value={og}
           onChange={setOg}
           unit="OG"
@@ -42,7 +45,7 @@ export function AbvCalc() {
           highlight
         />
         <CalcField
-          label="Final Gravity"
+          label={LL.conversions.abv.fgLabel()}
           value={fg}
           onChange={setFg}
           unit="FG"
@@ -51,9 +54,18 @@ export function AbvCalc() {
         />
       </SimpleGrid>
       <SimpleGrid cols={3}>
-        <StatTile label="ABV" value={`${abv.toFixed(1)}%`} />
-        <StatTile label="ABW" value={`${abw.toFixed(2)}%`} />
-        <StatTile label="Attenuation" value={`${attenuation.toFixed(1)}%`} />
+        <StatTile
+          label={LL.conversions.abv.abv()}
+          value={`${abv.toFixed(1)}%`}
+        />
+        <StatTile
+          label={LL.conversions.abv.abw()}
+          value={`${abw.toFixed(2)}%`}
+        />
+        <StatTile
+          label={LL.conversions.abv.attenuation()}
+          value={`${attenuation.toFixed(1)}%`}
+        />
       </SimpleGrid>
     </CalcCard>
   )

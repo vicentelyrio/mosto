@@ -1,5 +1,7 @@
 import { useState } from 'react'
 
+import { useI18nContext } from '@i18n/i18n-react'
+
 import {
   Alert,
   Box,
@@ -26,6 +28,7 @@ export function GravityLog({
   sessionId: string
   recipe: Recipe
 }) {
+  const { LL } = useI18nContext()
   const { readings, query, add, remove } = useGravityLog(sessionId)
   const [sg, setSg] = useState<number | ''>('')
   const [temp, setTemp] = useState<number | ''>(68)
@@ -48,14 +51,14 @@ export function GravityLog({
   return (
     <Stack gap="md">
       <Text fw={700} size="md">
-        Gravity Log — {recipe.name}
+        {LL.brewday.gravity.title({ name: recipe.name })}
       </Text>
 
       <Group gap="sm">
         {[
-          ['Target OG', recipe.og.toFixed(3)],
-          ['Target FG', recipe.fg.toFixed(3)],
-          ['Est. ABV', `${recipe.abv}%`],
+          [LL.brewday.gravity.targetOg(), recipe.og.toFixed(3)],
+          [LL.brewday.gravity.targetFg(), recipe.fg.toFixed(3)],
+          [LL.brewday.gravity.estAbv(), `${recipe.abv}%`],
         ].map(([label, value]) => (
           <Box key={label} className={classes.chip}>
             <Text size="xs" c="dimmed">
@@ -69,8 +72,8 @@ export function GravityLog({
       </Group>
 
       {query.isError ? (
-        <Alert color="red" title="Couldn't load gravity log">
-          Something went wrong fetching this session's readings.
+        <Alert color="red" title={LL.brewday.gravity.loadError.title()}>
+          {LL.brewday.gravity.loadError.message()}
         </Alert>
       ) : query.isLoading ? (
         <Stack gap="xs">
@@ -85,7 +88,10 @@ export function GravityLog({
               <Box className={classes.dot} />
               <Box flex={1}>
                 <Text size="sm" fw={600}>
-                  {entry.date} — SG {entry.sg.toFixed(3)}
+                  {LL.brewday.gravity.entryLabel({
+                    date: entry.date,
+                    sg: entry.sg.toFixed(3),
+                  })}
                 </Text>
                 {entry.note && (
                   <Text size="xs" c="dimmed">
@@ -107,7 +113,7 @@ export function GravityLog({
                 color="red"
                 onClick={() => remove.mutate(entry.id)}
               >
-                Remove
+                {LL.brewday.gravity.remove()}
               </Button>
             </Group>
           ))}
@@ -117,7 +123,7 @@ export function GravityLog({
       <Group gap="sm" wrap="wrap">
         <NumberInput
           className={classes.sgInput}
-          placeholder="SG e.g. 1.042"
+          placeholder={LL.brewday.gravity.sgPlaceholder()}
           value={sg}
           onChange={(v) => setSg(v === '' ? '' : Number(v))}
           decimalScale={3}
@@ -132,12 +138,12 @@ export function GravityLog({
         />
         <TextInput
           className={classes.noteInput}
-          placeholder="Note…"
+          placeholder={LL.brewday.gravity.notePlaceholder()}
           value={note}
           onChange={(e) => setNote(e.currentTarget.value)}
         />
         <Button onClick={logReading} loading={add.isPending}>
-          Log
+          {LL.brewday.gravity.log()}
         </Button>
       </Group>
     </Stack>

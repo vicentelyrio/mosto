@@ -1,21 +1,24 @@
 import { useState } from 'react'
 
+import { useI18nContext } from '@i18n/i18n-react'
+
 import { Button, Group, SimpleGrid } from '@mantine/core'
 
 import { CalcCard } from './calc-card'
 import { CalcField } from './calc-field'
 import { cToF, fToC } from './calculations'
 
-const PRESETS: [string, number][] = [
-  ['Mash', 152],
-  ['Sparge', 168],
-  ['Pitch Ale', 68],
-  ['Pitch Lager', 50],
-  ['Ferment', 68],
-]
-
 export function TemperatureCalc() {
+  const { LL } = useI18nContext()
   const [f, setF] = useState<number | ''>(152)
+
+  const PRESETS: [string, number][] = [
+    [LL.conversions.temperature.presets.mash(), 152],
+    [LL.conversions.temperature.presets.sparge(), 168],
+    [LL.conversions.temperature.presets.pitchAle(), 68],
+    [LL.conversions.temperature.presets.pitchLager(), 50],
+    [LL.conversions.temperature.presets.ferment(), 68],
+  ]
 
   const setFahrenheit = (v: number | '') => setF(v)
   const setCelsius = (v: number | '') =>
@@ -24,10 +27,10 @@ export function TemperatureCalc() {
   const c = f === '' ? '' : Number(fToC(f).toFixed(1))
 
   return (
-    <CalcCard title="Temperature">
+    <CalcCard title={LL.conversions.temperature.title()}>
       <SimpleGrid cols={2}>
         <CalcField
-          label="Fahrenheit"
+          label={LL.conversions.temperature.fahrenheitLabel()}
           value={f}
           onChange={setFahrenheit}
           unit="°F"
@@ -35,7 +38,7 @@ export function TemperatureCalc() {
           highlight
         />
         <CalcField
-          label="Celsius"
+          label={LL.conversions.temperature.celsiusLabel()}
           value={c}
           onChange={setCelsius}
           unit="°C"
@@ -51,7 +54,7 @@ export function TemperatureCalc() {
             size="xs"
             onClick={() => setFahrenheit(temp)}
           >
-            {label} ({temp}°F)
+            {LL.conversions.temperature.presetButton({ label, temp })}
           </Button>
         ))}
       </Group>

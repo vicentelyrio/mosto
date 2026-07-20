@@ -1,5 +1,6 @@
 import { useState } from 'react'
 
+import { useI18nContext } from '@i18n/i18n-react'
 import { paths } from '@infrastructure'
 import { useNavigate } from '@tanstack/react-router'
 
@@ -33,12 +34,13 @@ import { PageTemplate } from '@templates/page-template'
 
 import { InventoryCardGrid } from './inventory-card-grid'
 import classes from './inventory-list.module.css'
-import { CATEGORIES, isLowOrOut } from './inventory-meta'
+import { CATEGORY_COLORS, CATEGORY_KEYS, isLowOrOut } from './inventory-meta'
 import { InventoryTable } from './inventory-table'
 
 type View = 'table' | 'card'
 
 export function InventoryList() {
+  const { LL } = useI18nContext()
   const navigate = useNavigate()
   const { items, query } = useInventory()
   const [category, setCategory] = useState<InventoryCategory>('grain')
@@ -57,10 +59,10 @@ export function InventoryList() {
 
   return (
     <PageTemplate
-      title="Inventory"
+      title={LL.inventory.list.title()}
       subtitle={
         query.isSuccess && lowCount === 0
-          ? `${items.length} items on hand`
+          ? LL.inventory.list.itemsOnHand({ count: items.length })
           : undefined
       }
       actions={
@@ -70,7 +72,7 @@ export function InventoryList() {
             navigate({ to: paths.newInventoryItem, search: { category } })
           }
         >
-          Add Item
+          {LL.inventory.list.addButton()}
         </Button>
       }
     >
@@ -82,7 +84,7 @@ export function InventoryList() {
             color="var(--mantine-color-red-5)"
           />
           <Text size="sm" c="red" fw={600}>
-            {lowCount} items low or out of stock
+            {LL.inventory.list.lowStockWarning({ count: lowCount })}
           </Text>
         </Group>
       )}
@@ -96,16 +98,16 @@ export function InventoryList() {
           }}
         >
           <Tabs.List>
-            {CATEGORIES.map((c) => {
-              const count = items.filter((i) => i.category === c.key).length
+            {CATEGORY_KEYS.map((key) => {
+              const count = items.filter((i) => i.category === key).length
               const hasBad = items.some(
-                (i) => i.category === c.key && isLowOrOut(i),
+                (i) => i.category === key && isLowOrOut(i),
               )
               return (
                 <Tabs.Tab
-                  key={c.key}
-                  value={c.key}
-                  color={c.color}
+                  key={key}
+                  value={key}
+                  color={CATEGORY_COLORS[key]}
                   rightSection={
                     <Group gap={4} wrap="nowrap">
                       <Text
@@ -126,7 +128,7 @@ export function InventoryList() {
                     </Group>
                   }
                 >
-                  {c.label}
+                  {LL.inventory.category[key]()}
                 </Tabs.Tab>
               )
             })}
@@ -145,15 +147,17 @@ export function InventoryList() {
 
       <TextInput
         className={classes.search}
-        placeholder={`Search ${CATEGORIES.find((c) => c.key === category)?.label.toLowerCase()}…`}
+        placeholder={LL.inventory.list.searchPlaceholder({
+          category: LL.inventory.category[category]().toLowerCase(),
+        })}
         value={search}
         onChange={(e) => setSearch(e.currentTarget.value)}
         mb="md"
       />
 
       {query.isError ? (
-        <Alert color="red" title="Couldn't load inventory">
-          Something went wrong fetching your inventory. Try refreshing the page.
+        <Alert color="red" title={LL.inventory.list.loadError.title()}>
+          {LL.inventory.list.loadError.message()}
         </Alert>
       ) : query.isLoading ? (
         <Stack gap="xs">
@@ -164,8 +168,8 @@ export function InventoryList() {
       ) : filtered.length === 0 ? (
         <Text c="dimmed" ta="center" py="xl">
           {categoryItems.length === 0
-            ? 'No items yet — add one to get started.'
-            : 'No items match your search.'}
+            ? LL.inventory.list.empty()
+            : LL.inventory.list.emptySearch()}
         </Text>
       ) : view === 'table' ? (
         <InventoryTable

@@ -1,3 +1,6 @@
+import { useI18nContext } from '@i18n/i18n-react'
+import type { TranslationFunctions } from '@i18n/i18n-types'
+
 import { Box, Group, Stack, Text } from '@mantine/core'
 
 import type { InventoryCategory, InventoryItem } from '@domain'
@@ -11,8 +14,16 @@ import {
   STATUS_COLOR,
 } from './inventory-meta'
 
-function metaLine(item: InventoryItem, category: InventoryCategory) {
-  if (category === 'hop') return `${item.alpha}% AA · ${item.form}`
+function metaLine(
+  LL: TranslationFunctions,
+  item: InventoryItem,
+  category: InventoryCategory,
+) {
+  if (category === 'hop')
+    return LL.inventory.hopMeta({
+      alpha: item.alpha ?? 0,
+      form: item.form ?? '',
+    })
   if (category === 'yeast')
     return [item.form, item.attenuation].filter(Boolean).join(' · ')
   return item.brand
@@ -27,14 +38,15 @@ export function InventoryCardGrid({
   category: InventoryCategory
   onEdit: (item: InventoryItem) => void
 }) {
+  const { LL } = useI18nContext()
   const accent = CATEGORY_COLORS[category]
 
   return (
     <Box className={classes.grid}>
       {items.map((item) => {
         const status = itemStatus(item)
-        const badge = expiryBadge(item.expiry)
-        const meta = metaLine(item, category)
+        const badge = expiryBadge(LL, item.expiry)
+        const meta = metaLine(LL, item, category)
         return (
           <Box key={item.id} className={classes.card} data-status={status}>
             <Group

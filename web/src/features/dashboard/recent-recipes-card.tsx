@@ -1,3 +1,4 @@
+import { useI18nContext } from '@i18n/i18n-react'
 import { paths } from '@infrastructure'
 import { useNavigate } from '@tanstack/react-router'
 
@@ -12,6 +13,7 @@ import { srmToHex } from '@features/recipes'
 import classes from './recent-recipes-card.module.css'
 
 export function RecentRecipesCard({ recipes }: { recipes: Recipe[] }) {
+  const { LL } = useI18nContext()
   const navigate = useNavigate()
 
   const recent = [...recipes]
@@ -22,7 +24,7 @@ export function RecentRecipesCard({ recipes }: { recipes: Recipe[] }) {
     <Box className={classes.card}>
       <Group justify="space-between" className={classes.header}>
         <Text fw={700} size="sm">
-          Recent Recipes
+          {LL.dashboard.recentRecipes.title()}
         </Text>
         <UnstyledButton
           onClick={() => navigate({ to: paths.recipes })}
@@ -30,13 +32,13 @@ export function RecentRecipesCard({ recipes }: { recipes: Recipe[] }) {
           fw={600}
           fz="xs"
         >
-          View all
+          {LL.dashboard.recentRecipes.viewAll()}
         </UnstyledButton>
       </Group>
 
       {recent.length === 0 ? (
         <Text c="dimmed" ta="center" py="xl" size="sm">
-          No recipes yet — create one to get started.
+          {LL.dashboard.recentRecipes.empty()}
         </Text>
       ) : (
         recent.map((recipe) => (
@@ -60,7 +62,7 @@ export function RecentRecipesCard({ recipes }: { recipes: Recipe[] }) {
               <Group gap="lg" wrap="nowrap">
                 <Stack gap={0} ta="right">
                   <Text size="xs" c="dimmed">
-                    ABV
+                    {LL.dashboard.recentRecipes.abv()}
                   </Text>
                   <Text size="sm" fw={600}>
                     {recipe.abv}%
@@ -68,7 +70,7 @@ export function RecentRecipesCard({ recipes }: { recipes: Recipe[] }) {
                 </Stack>
                 <Stack gap={0} ta="right">
                   <Text size="xs" c="dimmed">
-                    IBU
+                    {LL.dashboard.recentRecipes.ibu()}
                   </Text>
                   <Text size="sm" fw={600}>
                     {recipe.ibu}
