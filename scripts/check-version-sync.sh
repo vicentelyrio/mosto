@@ -1,5 +1,6 @@
 #!/usr/bin/env bash
 # Fails if the Cargo workspace version and web/package.json version have drifted apart.
+# Optionally pass a git tag (e.g. v1.2.3) as $1 to also assert it matches that version.
 set -euo pipefail
 
 root="$(cd "$(dirname "${BASH_SOURCE[0]}")/.." && pwd)"
@@ -14,3 +15,14 @@ if [[ "$cargo_version" != "$web_version" ]]; then
 fi
 
 echo "Versions in sync: $cargo_version"
+
+if [[ $# -ge 1 ]]; then
+  tag="$1"
+  expected="v${cargo_version}"
+  if [[ "$tag" != "$expected" ]]; then
+    echo "Tag mismatch: pushed tag=$tag, expected=$expected" >&2
+    echo "Run scripts/bump-version.sh <version>, commit, then tag $expected." >&2
+    exit 1
+  fi
+  echo "Tag matches version: $tag"
+fi
